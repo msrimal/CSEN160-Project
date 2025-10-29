@@ -43,3 +43,8 @@ You are the commander of the body’s immune defense. Each level represents a di
 | Version Control | Git + GitHub |
 
 ---
+
+User has 3 chances to prevent a virus from passing into the immune system, every time a user allows a virus to enter, the screen gets slightly darker, more crackers in the screen and the makes a noise if one enters, maybe like "Ow" or a noise related to failing. 
+
+Player has mulitple types of pathogens/immune system cells that help defend and attack on the multiple types of viruses. Some certain pathogens may cause stronger damage on certain kinds of viruses. If the player survives a round by not allowing 3 or more viruses to get through under a certain amount of time, the player will continue to the next round where there will be different kinds of viruses, or with faster speeds, or with a higher amount of them spawning in. 
+
