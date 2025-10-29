@@ -1,8 +1,15 @@
 # Compiled class file
 *.class
 
-# Log file
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# Logs & misc
 *.log
+logs/
+coverage/
 
 # DS_ Store
 *.DS_Store 
