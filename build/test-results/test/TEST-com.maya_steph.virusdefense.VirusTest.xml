@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.maya_steph.virusdefense.VirusTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2025-11-04T20:45:44.124Z" hostname="MacBook-Pro-524.local" time="0.001">
+  <properties/>
+  <testcase name="testVirusInitialization()" classname="com.maya_steph.virusdefense.VirusTest" time="0.0"/>
+  <testcase name="testVirusFallsDown()" classname="com.maya_steph.virusdefense.VirusTest" time="0.0"/>
+  <testcase name="testDifferentSpeeds()" classname="com.maya_steph.virusdefense.VirusTest" time="0.0"/>
+  <testcase name="testUpdate()" classname="com.maya_steph.virusdefense.VirusTest" time="0.0"/>
+  <testcase name="testUpdateMultipleTimes()" classname="com.maya_steph.virusdefense.VirusTest" time="0.0"/>
+  <testcase name="testSetSpeed()" classname="com.maya_steph.virusdefense.VirusTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
