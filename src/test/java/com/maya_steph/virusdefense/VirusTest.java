@@ -23,7 +23,7 @@ public class VirusTest {
         assertEquals(INITIAL_X, virus.getX());
         assertEquals(INITIAL_Y, virus.getY(), 0.001);
         assertEquals(INITIAL_SPEED, virus.getSpeed(), 0.001);
-        assertEquals(30, 30); // Size is hardcoded to 30
+        assertEquals(30, virus.getSize()); // Size is hardcoded to 30
     }
     
     @Test
