@@ -21,6 +21,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private RoundManager roundManager;
     private OverlayEffect overlay;
     private Random random;
+    private Weapons weapons;
     
     private Timer gameTimer;
     private Timer virusSpawnTimer;
@@ -40,6 +41,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         roundManager = new RoundManager();
         overlay = new OverlayEffect();
         random = new Random();
+        weapons = new Weapons();
         
         gameTimer = new Timer(16, this); // ~60 FPS
         virusSpawnTimer = new Timer(2000, e -> spawnVirus()); // Spawn every 2 seconds initially
@@ -84,18 +86,24 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         // Update player
         player.update();
         
+        // Update weapons
+        weapons.update();
+        
         // Update viruses
-        Iterator<Virus> iterator = viruses.iterator();
-        while (iterator.hasNext()) {
-            Virus virus = iterator.next();
+        Iterator<Virus> virusIterator = viruses.iterator();
+        while (virusIterator.hasNext()) {
+            Virus virus = virusIterator.next();
             virus.update();
             
             // Check if virus reached bottom
             if (virus.getY() > HEIGHT) {
-                iterator.remove();
+                virusIterator.remove();
                 loseLife();
             }
         }
+        
+        // Check collisions between projectiles and viruses
+        checkProjectileCollisions();
         
         // Update overlay fade effect
         overlay.update();
@@ -111,6 +119,32 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             gameTimer.stop();
             virusSpawnTimer.stop();
             playSound("game_over"); // Placeholder for sound effect
+        }
+    }
+    
+    private void checkProjectileCollisions() {
+        Iterator<Weapons.ProjectileBall> projectileIterator = weapons.getProjectiles().iterator();
+        while (projectileIterator.hasNext()) {
+            Weapons.ProjectileBall projectile = projectileIterator.next();
+            
+            Iterator<Virus> virusIterator = viruses.iterator();
+            while (virusIterator.hasNext()) {
+                Virus virus = virusIterator.next();
+                
+                if (projectile.collidesWith(virus)) {
+                    // Hit the virus
+                    virus.hit();
+                    projectileIterator.remove();
+                    playSound("hit");
+                    
+                    // Check if virus is dead
+                    if (virus.isDead()) {
+                        virusIterator.remove();
+                        playSound("virus_destroyed");
+                    }
+                    break; // Projectile can only hit one virus
+                }
+            }
         }
     }
     
@@ -139,6 +173,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         for (Virus virus : viruses) {
             virus.draw(g2d);
         }
+        
+        // Draw weapons/projectiles
+        weapons.draw(g2d);
         
         // Draw overlay
         overlay.draw(g2d, WIDTH, HEIGHT);
@@ -217,6 +254,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             case KeyEvent.VK_D:
                 player.moveRight(LANE_WIDTH, WIDTH);
                 playSound("move"); // Placeholder
+                break;
+            case KeyEvent.VK_SPACE:
+                weapons.shoot(player.getX(), player.getY());
+                playSound("shoot"); // Placeholder
                 break;
         }
     }

@@ -11,6 +11,7 @@ public class Virus {
     private double speed;
     private int size;
     private Color color;
+    private int hitCount;
     
     public Virus(int x, int y, double speed) {
         this.x = x;
@@ -18,6 +19,7 @@ public class Virus {
         this.speed = speed;
         this.size = 30;
         this.color = Color.RED;
+        this.hitCount = 0;
     }
     
     public void update() {
@@ -66,6 +68,26 @@ public class Virus {
     
     public void setSpeed(double speed) {
         this.speed = speed;
+    }
+    
+    // Claude implemented function
+    public int getSize() {
+        return size;
+    }
+    
+    public void hit() {
+        hitCount++;
+        if (hitCount == 1) {
+            color = Color.ORANGE;
+        }
+    }
+    
+    public boolean isDead() {
+        return hitCount >= 2;
+    }
+    
+    public int getHitCount() {
+        return hitCount;
     }
 }
 
