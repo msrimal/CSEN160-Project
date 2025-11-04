@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.maya_steph.virusdefense.GameIntegrationTest" tests="7" skipped="0" failures="1" errors="0" timestamp="2025-11-04T20:45:44.024Z" hostname="MacBook-Pro-524.local" time="0.089">
+<testsuite name="com.maya_steph.virusdefense.GameIntegrationTest" tests="7" skipped="0" failures="1" errors="0" timestamp="2025-11-04T21:13:32.424Z" hostname="MacBook-Pro-524.local" time="0.079">
   <properties/>
-  <testcase name="testVirusFallsCorrectly()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.084"/>
-  <testcase name="testPlayerMovementWithLanes()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.003">
+  <testcase name="testVirusFallsCorrectly()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.076"/>
+  <testcase name="testPlayerMovementWithLanes()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.001">
     <failure message="org.opentest4j.AssertionFailedError: expected: &lt;700&gt; but was: &lt;500&gt;" type="org.opentest4j.AssertionFailedError">org.opentest4j.AssertionFailedError: expected: &lt;700&gt; but was: &lt;500&gt;
 	at app//org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
 	at app//org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
@@ -100,10 +100,10 @@
 </failure>
   </testcase>
   <testcase name="testLifeLossTriggersOverlay()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.0"/>
-  <testcase name="testPlayerStaysInBounds()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.001"/>
-  <testcase name="testVirusSpeedMatchesRoundManager()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.0"/>
+  <testcase name="testPlayerStaysInBounds()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.0"/>
+  <testcase name="testVirusSpeedMatchesRoundManager()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.001"/>
   <testcase name="testRoundProgressionWithVirusSpeed()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.0"/>
-  <testcase name="testGameReset()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.001"/>
+  <testcase name="testGameReset()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

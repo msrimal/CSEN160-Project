@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.maya_steph.virusdefense.OverlayEffectTest" tests="8" skipped="0" failures="1" errors="0" timestamp="2025-11-04T20:45:44.114Z" hostname="MacBook-Pro-524.local" time="0.002">
+<testsuite name="com.maya_steph.virusdefense.OverlayEffectTest" tests="8" skipped="0" failures="1" errors="0" timestamp="2025-11-04T21:13:32.504Z" hostname="MacBook-Pro-524.local" time="0.003">
   <properties/>
   <testcase name="testReset()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.0"/>
   <testcase name="testDarknessReachesTarget()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.0"/>
   <testcase name="testTriggerDarken()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.0"/>
-  <testcase name="testInitialState()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.001"/>
-  <testcase name="testDarknessIncreasesOnUpdate()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.0"/>
+  <testcase name="testInitialState()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.0"/>
+  <testcase name="testDarknessIncreasesOnUpdate()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.001"/>
   <testcase name="testDarknessFadesBack()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.0">
     <failure message="org.opentest4j.AssertionFailedError: expected: &lt;true&gt; but was: &lt;false&gt;" type="org.opentest4j.AssertionFailedError">org.opentest4j.AssertionFailedError: expected: &lt;true&gt; but was: &lt;false&gt;
 	at app//org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
