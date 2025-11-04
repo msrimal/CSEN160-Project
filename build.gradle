@@ -1,0 +1,96 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.maya_steph'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+dependencies {
+    // If you need jMonkeyEngine for other parts of the project
+    // implementation 'org.jmonkeyengine:jme3-core:3.5.2-stable'
+    // implementation 'org.jmonkeyengine:jme3-desktop:3.5.2-stable'
+    // implementation 'org.jmonkeyengine:jme3-lwjgl3:3.5.2-stable'
+    
+    // Testing
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+}
+
+application {
+    mainClass = 'com.maya_steph.virusdefense.Main'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+// Source sets configuration
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+        resources {
+            srcDirs = ['src/main/resources']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['src/test/java']
+        }
+        resources {
+            srcDirs = ['src/test/resources']
+        }
+    }
+}
+
+// Task to run Virus Defense game
+task runVirusDefense(type: JavaExec) {
+    group = 'application'
+    description = 'Runs the Virus Defense game'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.maya_steph.virusdefense.Main'
+}
+
+// Task to run original game (if exists)
+task runOriginal(type: JavaExec) {
+    group = 'application'
+    description = 'Runs the original game'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.maya_steph.Main'
+}
+
+// Build configuration
+jar {
+    manifest {
+        attributes(
+            'Main-Class': 'com.maya_steph.virusdefense.Main',
+            'Implementation-Title': project.name,
+            'Implementation-Version': project.version
+        )
+    }
+    
+    // Include all dependencies in the jar (if needed for distribution)
+    // from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+// Compile options
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+}
+
