@@ -2,6 +2,7 @@ package com.maya_steph.virusdefense;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import java.awt.Color;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -78,6 +79,84 @@ public class VirusTest {
         fastVirus.update();
         
         assertTrue(fastVirus.getY() > slowVirus.getY());
+    }
+    
+    @Test
+    void testVirusInitialHitCount() {
+        assertEquals(0, virus.getHitCount());
+        assertFalse(virus.isDead());
+    }
+    
+    @Test
+    void testVirusFirstHit() {
+        virus.hit();
+        
+        assertEquals(1, virus.getHitCount());
+        assertFalse(virus.isDead());
+    }
+    
+    @Test
+    void testVirusSecondHitKillsVirus() {
+        virus.hit();
+        virus.hit();
+        
+        assertEquals(2, virus.getHitCount());
+        assertTrue(virus.isDead());
+    }
+    
+    @Test
+    void testVirusMultipleHits() {
+        // Test that virus stays dead after more than 2 hits
+        virus.hit();
+        virus.hit();
+        virus.hit();
+        
+        assertEquals(3, virus.getHitCount());
+        assertTrue(virus.isDead());
+    }
+    
+    @Test
+    void testProjectileCollisionDetection() {
+        // Create a projectile at the same position as virus
+        Weapons.ProjectileBall projectile = new Weapons.ProjectileBall(INITIAL_X, INITIAL_Y);
+        
+        assertTrue(projectile.collidesWith(virus));
+    }
+    
+    @Test
+    void testProjectileNoCollision() {
+        // Create a projectile far from virus
+        Weapons.ProjectileBall projectile = new Weapons.ProjectileBall(INITIAL_X + 100, INITIAL_Y + 100);
+        
+        assertFalse(projectile.collidesWith(virus));
+    }
+    
+    @Test
+    void testProjectileBoundaryCollision() {
+        // Test collision at the edge of virus hitbox
+        int virusRadius = virus.getSize() / 2;
+        Weapons.ProjectileBall projectile = new Weapons.ProjectileBall(INITIAL_X + virusRadius + 5, INITIAL_Y);
+        
+        assertTrue(projectile.collidesWith(virus));
+    }
+    
+    @Test
+    void testProjectileMovement() {
+        Weapons.ProjectileBall projectile = new Weapons.ProjectileBall(100, 100);
+        double initialY = projectile.getY();
+        
+        projectile.update();
+        
+        assertTrue(projectile.getY() < initialY); // Projectile moves up (negative Y)
+    }
+    
+    @Test
+    void testProjectileProperties() {
+        Weapons.ProjectileBall projectile = new Weapons.ProjectileBall(150, 200);
+        
+        assertEquals(150, projectile.getX(), 0.001);
+        assertEquals(200, projectile.getY(), 0.001);
+        assertEquals(12, projectile.getSize());
     }
 }
 
