@@ -14,7 +14,7 @@ public class GameIntegrationTest {
     
     @BeforeEach
     void setUp() {
-        player = new Player(300, 700);
+        player = new Player(0, 600);
         roundManager = new RoundManager();
         overlay = new OverlayEffect();
     }
@@ -22,7 +22,7 @@ public class GameIntegrationTest {
     @Test
     void testPlayerMovementWithLanes() {
         int laneWidth = 200;
-        int screenWidth = 600;
+        int screenWidth = 700;
         
         // Move player across all 3 lanes
         int initialX = player.getX();

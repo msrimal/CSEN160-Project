@@ -7,37 +7,39 @@ import java.awt.*;
  */
 public class OverlayEffect {
     private float darknessLevel;
-    private float targetDarkness;
-    private float fadeSpeed;
+    private final float targetDarkness;
+    private final float fadeSpeed;
+    private boolean fading;
     private boolean isDarkening;
     
     public OverlayEffect() {
         darknessLevel = 0.0f;
-        targetDarkness = 0.0f;
+        targetDarkness = 0.6f; //target darkness when triggered
         fadeSpeed = 0.05f;
         isDarkening = false;
+        fading = false;
     }
     
     public void triggerDarken() {
-        targetDarkness = 0.6f; // 60% darkness
         isDarkening = true;
+        fading = false;
     }
-    
+
     public void update() {
         if (isDarkening) {
-            // Fade to dark
-            if (darknessLevel < targetDarkness) {
-                darknessLevel = Math.min(darknessLevel + fadeSpeed, targetDarkness);
-            } else {
-                // Fade back to normal
-                darknessLevel = Math.max(darknessLevel - fadeSpeed, 0.0f);
-                if (darknessLevel <= 0.0f) {
-                    isDarkening = false;
-                    targetDarkness = 0.0f;
-                }
+            darknessLevel = Math.min(darknessLevel + fadeSpeed, targetDarkness);
+            if (darknessLevel >= targetDarkness) {
+                isDarkening = false;
+                fading = true;
+            }
+        } else if (fading) {
+            darknessLevel = Math.max(darknessLevel - fadeSpeed, 0.0f);
+            if (darknessLevel <= 0.0f) {
+                fading = false;
             }
         }
     }
+
     
     public void draw(Graphics2D g2d, int width, int height) {
         if (darknessLevel > 0.0f) {
@@ -50,7 +52,7 @@ public class OverlayEffect {
     
     public void reset() {
         darknessLevel = 0.0f;
-        targetDarkness = 0.0f;
+        fading = false;
         isDarkening = false;
     }
     
