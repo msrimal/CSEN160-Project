@@ -111,7 +111,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     
     private void loseLife() {
         lives--;
-        overlay.darkerAfterLoss();
+        overlay.triggerDarken();
         playSound("life_lost"); // Placeholder for sound effect
         
         if (lives <= 0) {
@@ -258,6 +258,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             case KeyEvent.VK_SPACE:
                 weapons.shoot(player.getX(), player.getY());
                 playSound("shoot"); // Placeholder
+                break;
+            case KeyEvent.VK_P:
+                weapons.switchWeapon();
+                playSound("weapon_switch"); // Placeholder
                 break;
         }
     }

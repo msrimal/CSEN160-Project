@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.maya_steph.virusdefense.VirusTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2025-11-05T18:09:51.157Z" hostname="MacBook-Pro-524.local" time="0.004">
+<testsuite name="com.maya_steph.virusdefense.VirusTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2025-11-05T21:28:58.013Z" hostname="admins-MacBook-Pro-6.local" time="0.025">
   <properties/>
-  <testcase name="testProjectileNoCollision()" classname="com.maya_steph.virusdefense.VirusTest" time="0.001"/>
+  <testcase name="testProjectileNoCollision()" classname="com.maya_steph.virusdefense.VirusTest" time="0.002"/>
   <testcase name="testProjectileBoundaryCollision()" classname="com.maya_steph.virusdefense.VirusTest" time="0.0"/>
-  <testcase name="testVirusInitialization()" classname="com.maya_steph.virusdefense.VirusTest" time="0.0"/>
+  <testcase name="testVirusInitialization()" classname="com.maya_steph.virusdefense.VirusTest" time="0.001"/>
   <testcase name="testVirusMultipleHits()" classname="com.maya_steph.virusdefense.VirusTest" time="0.0"/>
-  <testcase name="testVirusFallsDown()" classname="com.maya_steph.virusdefense.VirusTest" time="0.0"/>
-  <testcase name="testVirusFirstHit()" classname="com.maya_steph.virusdefense.VirusTest" time="0.0"/>
-  <testcase name="testProjectileMovement()" classname="com.maya_steph.virusdefense.VirusTest" time="0.0"/>
-  <testcase name="testDifferentSpeeds()" classname="com.maya_steph.virusdefense.VirusTest" time="0.0"/>
-  <testcase name="testVirusSecondHitKillsVirus()" classname="com.maya_steph.virusdefense.VirusTest" time="0.0"/>
-  <testcase name="testProjectileProperties()" classname="com.maya_steph.virusdefense.VirusTest" time="0.0"/>
-  <testcase name="testVirusInitialHitCount()" classname="com.maya_steph.virusdefense.VirusTest" time="0.0"/>
-  <testcase name="testProjectileCollisionDetection()" classname="com.maya_steph.virusdefense.VirusTest" time="0.0"/>
-  <testcase name="testUpdate()" classname="com.maya_steph.virusdefense.VirusTest" time="0.0"/>
-  <testcase name="testUpdateMultipleTimes()" classname="com.maya_steph.virusdefense.VirusTest" time="0.0"/>
-  <testcase name="testSetSpeed()" classname="com.maya_steph.virusdefense.VirusTest" time="0.0"/>
+  <testcase name="testVirusFallsDown()" classname="com.maya_steph.virusdefense.VirusTest" time="0.001"/>
+  <testcase name="testVirusFirstHit()" classname="com.maya_steph.virusdefense.VirusTest" time="0.001"/>
+  <testcase name="testProjectileMovement()" classname="com.maya_steph.virusdefense.VirusTest" time="0.001"/>
+  <testcase name="testDifferentSpeeds()" classname="com.maya_steph.virusdefense.VirusTest" time="0.001"/>
+  <testcase name="testVirusSecondHitKillsVirus()" classname="com.maya_steph.virusdefense.VirusTest" time="0.001"/>
+  <testcase name="testProjectileProperties()" classname="com.maya_steph.virusdefense.VirusTest" time="0.001"/>
+  <testcase name="testVirusInitialHitCount()" classname="com.maya_steph.virusdefense.VirusTest" time="0.001"/>
+  <testcase name="testProjectileCollisionDetection()" classname="com.maya_steph.virusdefense.VirusTest" time="0.001"/>
+  <testcase name="testUpdate()" classname="com.maya_steph.virusdefense.VirusTest" time="0.001"/>
+  <testcase name="testUpdateMultipleTimes()" classname="com.maya_steph.virusdefense.VirusTest" time="0.001"/>
+  <testcase name="testSetSpeed()" classname="com.maya_steph.virusdefense.VirusTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
