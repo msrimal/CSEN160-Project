@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.maya_steph.virusdefense.PlayerTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2025-11-05T18:09:51.154Z" hostname="MacBook-Pro-524.local" time="0.003">
+  <properties/>
+  <testcase name="testMoveRightBoundary()" classname="com.maya_steph.virusdefense.PlayerTest" time="0.001"/>
+  <testcase name="testPlayerInitialization()" classname="com.maya_steph.virusdefense.PlayerTest" time="0.0"/>
+  <testcase name="testMoveLeftBoundary()" classname="com.maya_steph.virusdefense.PlayerTest" time="0.0"/>
+  <testcase name="testMoveLeft()" classname="com.maya_steph.virusdefense.PlayerTest" time="0.0"/>
+  <testcase name="testMoveRight()" classname="com.maya_steph.virusdefense.PlayerTest" time="0.0"/>
+  <testcase name="testUpdate()" classname="com.maya_steph.virusdefense.PlayerTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.maya_steph.virusdefense.GameIntegrationTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2025-11-05T18:09:51.044Z" hostname="MacBook-Pro-524.local" time="0.109">
+  <properties/>
+  <testcase name="testVirusFallsCorrectly()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.105"/>
+  <testcase name="testPlayerMovementWithLanes()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.0"/>
+  <testcase name="testLifeLossTriggersOverlay()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.0"/>
+  <testcase name="testPlayerStaysInBounds()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.001"/>
+  <testcase name="testVirusSpeedMatchesRoundManager()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.0"/>
+  <testcase name="testRoundProgressionWithVirusSpeed()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.0"/>
+  <testcase name="testGameReset()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

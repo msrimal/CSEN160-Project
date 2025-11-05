@@ -11,13 +11,16 @@ public class OverlayEffect {
     private final float fadeSpeed;
     private boolean fading;
     private boolean isDarkening;
-    
+
     public OverlayEffect() {
         darknessLevel = 0.0f;
         targetDarkness = 0.6f; //target darkness when triggered
         fadeSpeed = 0.05f;
         isDarkening = false;
         fading = false;
+    }
+    public void darkerAfterLoss(){
+        darknessLevel += 0.2f;
     }
     
     public void triggerDarken() {

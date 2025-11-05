@@ -20,7 +20,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private ArrayList<Virus> viruses;
     private RoundManager roundManager;
     private OverlayEffect overlay;
-    private Random random;
+    private final Random random;
     private Weapons weapons;
     
     private Timer gameTimer;
@@ -111,7 +111,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     
     private void loseLife() {
         lives--;
-        overlay.triggerDarken();
+        overlay.darkerAfterLoss();
         playSound("life_lost"); // Placeholder for sound effect
         
         if (lives <= 0) {
