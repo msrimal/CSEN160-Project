@@ -53,6 +53,10 @@ public class Weapons {
     public WeaponType getCurrentWeapon() {
         return currentWeapon;
     }
+    
+    public void setWeapon(WeaponType weaponType) {
+        this.currentWeapon = weaponType;
+    }
 
     public void update() {
         Iterator<ProjectileBall> iterator = projectiles.iterator();
@@ -233,6 +237,10 @@ public class Weapons {
 
         public int getSize() {
             return size;
+        }
+        
+        public WeaponType getWeaponType() {
+            return weaponType;
         }
 
         public boolean collidesWith(Virus virus) {

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.maya_steph.virusdefense.GameIntegrationTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2025-11-05T21:28:57.915Z" hostname="admins-MacBook-Pro-6.local" time="0.042">
+<testsuite name="com.maya_steph.virusdefense.GameIntegrationTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2025-11-05T21:32:55.803Z" hostname="MacBook-Pro-524.local" time="0.015">
   <properties/>
-  <testcase name="testVirusFallsCorrectly()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.027"/>
-  <testcase name="testPlayerMovementWithLanes()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.001"/>
-  <testcase name="testLifeLossTriggersOverlay()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.001"/>
-  <testcase name="testPlayerStaysInBounds()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.002"/>
-  <testcase name="testVirusSpeedMatchesRoundManager()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.001"/>
-  <testcase name="testRoundProgressionWithVirusSpeed()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.001"/>
-  <testcase name="testGameReset()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.001"/>
+  <testcase name="testVirusFallsCorrectly()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.013"/>
+  <testcase name="testPlayerMovementWithLanes()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.0"/>
+  <testcase name="testLifeLossTriggersOverlay()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.0"/>
+  <testcase name="testPlayerStaysInBounds()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.0"/>
+  <testcase name="testVirusSpeedMatchesRoundManager()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.0"/>
+  <testcase name="testRoundProgressionWithVirusSpeed()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.0"/>
+  <testcase name="testGameReset()" classname="com.maya_steph.virusdefense.GameIntegrationTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

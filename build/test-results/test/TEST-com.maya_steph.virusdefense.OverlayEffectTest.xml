@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.maya_steph.virusdefense.OverlayEffectTest" tests="8" skipped="0" failures="1" errors="0" timestamp="2025-11-05T21:28:57.962Z" hostname="admins-MacBook-Pro-6.local" time="0.021">
+<testsuite name="com.maya_steph.virusdefense.OverlayEffectTest" tests="8" skipped="0" failures="1" errors="0" timestamp="2025-11-05T21:32:55.788Z" hostname="MacBook-Pro-524.local" time="0.01">
   <properties/>
-  <testcase name="testReset()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.001"/>
-  <testcase name="testDarknessReachesTarget()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.009">
+  <testcase name="testReset()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.005"/>
+  <testcase name="testDarknessReachesTarget()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.001">
     <failure message="org.opentest4j.AssertionFailedError: expected: &lt;true&gt; but was: &lt;false&gt;" type="org.opentest4j.AssertionFailedError">org.opentest4j.AssertionFailedError: expected: &lt;true&gt; but was: &lt;false&gt;
 	at app//org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
 	at app//org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
@@ -11,8 +11,10 @@
 	at app//org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:31)
 	at app//org.junit.jupiter.api.Assertions.assertTrue(Assertions.java:180)
 	at app//com.maya_steph.virusdefense.OverlayEffectTest.testDarknessReachesTarget(OverlayEffectTest.java:52)
-	at java.base@25.0.1/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
-	at java.base@25.0.1/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base@17.0.15/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base@17.0.15/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base@17.0.15/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base@17.0.15/java.lang.reflect.Method.invoke(Method.java:569)
 	at app//org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:727)
 	at app//org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
 	at app//org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
@@ -40,7 +42,7 @@
 	at app//org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
 	at app//org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
 	at app//org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
-	at java.base@25.0.1/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base@17.0.15/java.util.ArrayList.forEach(ArrayList.java:1511)
 	at app//org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
 	at app//org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
 	at app//org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
@@ -50,7 +52,7 @@
 	at app//org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
 	at app//org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
 	at app//org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
-	at java.base@25.0.1/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base@17.0.15/java.util.ArrayList.forEach(ArrayList.java:1511)
 	at app//org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
 	at app//org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
 	at app//org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
@@ -76,8 +78,10 @@
 	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestClassProcessor$CollectAllTestClassesExecutor.access$000(JUnitPlatformTestClassProcessor.java:110)
 	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestClassProcessor.stop(JUnitPlatformTestClassProcessor.java:104)
 	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.stop(SuiteTestClassProcessor.java:64)
-	at java.base@25.0.1/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
-	at java.base@25.0.1/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base@17.0.15/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base@17.0.15/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base@17.0.15/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base@17.0.15/java.lang.reflect.Method.invoke(Method.java:569)
 	at org.gradle.internal.dispatch.MethodInvocation.invokeOn(MethodInvocation.java:77)
 	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:28)
 	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:19)
@@ -95,11 +99,11 @@
 	at app//worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
 </failure>
   </testcase>
-  <testcase name="testTriggerDarken()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.001"/>
+  <testcase name="testTriggerDarken()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.0"/>
   <testcase name="testInitialState()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.0"/>
-  <testcase name="testDarknessIncreasesOnUpdate()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.001"/>
-  <testcase name="testDarknessFadesBack()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.001"/>
-  <testcase name="testDarknessStaysInRange()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.001"/>
+  <testcase name="testDarknessIncreasesOnUpdate()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.0"/>
+  <testcase name="testDarknessFadesBack()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.0"/>
+  <testcase name="testDarknessStaysInRange()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.0"/>
   <testcase name="testMultipleTriggers()" classname="com.maya_steph.virusdefense.OverlayEffectTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

@@ -16,6 +16,9 @@ java {
 }
 
 dependencies {
+    // JSON parsing
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+    
     // If you need jMonkeyEngine for other parts of the project
     // implementation 'org.jmonkeyengine:jme3-core:3.5.2-stable'
     // implementation 'org.jmonkeyengine:jme3-desktop:3.5.2-stable'
