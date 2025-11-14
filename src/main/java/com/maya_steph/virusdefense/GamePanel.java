@@ -877,9 +877,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     }
     
     private void drawGameOver(Graphics2D g2d) {
-        // Pure bright red semi-transparent overlay background (sheer)
+        // Pure bright red semi-transparent overlay background covering entire screen from top to bottom
         g2d.setColor(new Color(255, 0, 0, 120)); // Pure bright red: R=255, G=0, B=0
-        g2d.fillRect(0, 0, WIDTH, HEIGHT);
+        g2d.fillRect(0, 0, getWidth(), getHeight()); // Cover entire screen from top (0) to bottom (getHeight())
         
         // Game Over text in white for contrast
         g2d.setColor(Color.WHITE); // White text stands out against red background
