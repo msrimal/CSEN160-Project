@@ -1,0 +1,258 @@
+================================================================================
+                    HEARTATTACK GAME - PROJECT SUMMARY
+================================================================================
+
+PROJECT OVERVIEW
+================================================================================
+HeartAttack is an educational tower defense game built in Java that combines
+strategic gameplay with heart biology quiz questions. Players defend a heart
+organ from waves of viruses by using specific weapons to eliminate different
+virus types, while answering quiz questions that appear at random intervals.
+The game features progressive difficulty, visual effects, and a comprehensive
+user interface.
+
+================================================================================
+HOW WE BUILT THIS PROJECT
+================================================================================
+
+1. PROJECT STRUCTURE
+   - Organized as a standard Java Gradle project
+   - Package structure: com.maya_steph.virusdefense
+   - Separated concerns into distinct classes for maintainability
+   - Used Maven-style directory structure (src/main/java, src/test/java)
+
+2. DEVELOPMENT APPROACH
+   - Object-oriented design with clear separation of responsibilities
+   - Game loop architecture using Java Swing Timer for 60 FPS rendering
+   - Event-driven input handling with KeyListener interface
+   - State management for game phases (home screen, gameplay, quiz, game over)
+
+3. BUILD PROCESS
+   - Used Gradle as the build automation tool
+   - Configured Java 11 compatibility
+   - Set up application plugin for easy execution
+   - Included JUnit 5 for testing framework
+   - Created custom Gradle tasks for running the game
+
+4. CORE COMPONENTS DEVELOPMENT
+   - GamePanel: Main game loop, rendering, and input handling
+   - Player: Player movement and positioning logic
+   - Virus: Virus types, movement, health, and collision detection
+   - Weapons: Weapon system with projectiles and collision mechanics
+   - QuizManager: JSON-based question loading and random selection
+   - RoundManager: Progressive difficulty and round progression
+   - OverlayEffect: Visual effects (shakes, flashes, overlays)
+   - SoundManager: Audio system for sound effects
+
+5. DATA MANAGEMENT
+   - Questions stored in JSON format (questions.json)
+   - JSON parsing using json-simple library
+   - Resource loading from classpath for JAR distribution
+   - Fallback mechanisms for missing resources
+
+================================================================================
+TECHNOLOGIES AND TOOLS USED
+================================================================================
+
+PROGRAMMING LANGUAGE & VERSION
+- Java 11 (JDK 11+)
+- Source and target compatibility: Java 11
+
+BUILD TOOLS
+- Gradle (Build automation and dependency management)
+- Gradle Wrapper (gradlew) for consistent builds across environments
+
+GRAPHICS & UI FRAMEWORK
+- Java Swing (JFrame, JPanel)
+- Graphics2D API for rendering
+- Rendering hints for anti-aliasing and smooth graphics
+
+DEPENDENCIES
+- json-simple 1.1.1 (JSON parsing for quiz questions)
+- JUnit Jupiter 5.9.2 (Testing framework)
+- JUnit Platform Launcher 1.9.2 (Test execution)
+
+DEVELOPMENT TOOLS
+- IDE: IntelliJ IDEA (based on project structure)
+- Version Control: Git
+- Build System: Gradle
+
+PLATFORM
+- Cross-platform (Windows, Mac, Linux)
+- Java Virtual Machine (JVM) based
+
+================================================================================
+KEY FUNCTIONALITIES
+================================================================================
+
+1. GAME MECHANICS
+   - Tower Defense Gameplay: Defend heart from descending viruses
+   - Lane-based Movement: Player moves between 3 lanes
+   - Weapon-Virus Matching: Each virus type requires specific weapon
+   - Health System: 3 lives displayed as heart icons
+   - Progressive Difficulty: Increasing virus count and speed per round
+   - Infinite Rounds: Game continues until all lives are lost
+
+2. VIRUS SYSTEM
+   - Four Virus Types:
+     * Spiky Virus (Red/Brown) - Weak to Spiky Ball
+     * Round Virus (Green) - Weak to Ball
+     * Star Virus (Blue) - Weak to Star
+     * Arrow Virus (Orange) - Weak to Arrow
+   - Health System: Viruses require multiple hits to destroy
+   - Visual Feedback: Viruses lighten as they take damage
+   - Movement: Viruses descend from top to bottom
+   - Collision Detection: Precise hit detection with projectiles
+
+3. WEAPON SYSTEM
+   - Four Weapon Types:
+     * Spiky Ball (Key 1) - Effective against Spiky viruses
+     * Ball (Key 2) - Effective against Round viruses
+     * Star (Key 3) - Effective against Star viruses
+     * Arrow (Key 4) - Effective against Arrow viruses
+   - Projectile Physics: Weapons shoot upward from player position
+   - Weapon Switching: Direct key selection (1-4) or cycling (P key)
+   - Effectiveness Check: Only matching weapons damage viruses
+
+4. QUIZ SYSTEM
+   - Educational Component: Heart biology questions
+   - Random Timing: Quizzes appear every 35-60 seconds
+   - Question Pool: 20 questions loaded from JSON file
+   - Game Pause: Gameplay pauses during quiz display
+   - Answer Input: Text input with real-time display
+   - Life Penalty: Wrong answers cost 1 life
+   - Visual Feedback: Shows "CORRECT!" or "WRONG!" messages
+   - Result Display: 2-second result display before resuming
+
+5. ROUND PROGRESSION
+   - Round 1: 3 viruses, speed 1.0
+   - Round 2: 5 viruses, speed 1.3
+   - Round 3: 7 viruses, speed 1.6
+   - Round 4+: Progressively more viruses and faster speeds
+   - Round Completion: All viruses must be spawned and eliminated
+   - Visual Cue: Green flash on round completion
+
+6. USER INTERFACE
+   - Home Screen: Title, premise, controls, blinking start prompt
+   - Game Stats Display: Round number, virus count, speed
+   - Lives Display: Heart icons showing remaining lives
+   - Weapon Key: Toggleable reference guide (Press 'I' to hide/show)
+   - Current Weapon Indicator: Shows active weapon type
+   - Controls Reference: On-screen control hints
+   - Game Over Screen: Final round display, restart option
+
+7. VISUAL EFFECTS
+   - Life Loss Flash: Red screen flash when virus passes through
+   - Round Completion Flash: Green flash on successful round
+   - Screen Shake: Shake effect on life loss (not from quiz)
+   - Moving Background: Forward movement illusion
+   - Overlay Effects: Semi-transparent overlays for focus
+   - Damage Visualization: Viruses change color as health decreases
+
+8. AUDIO SYSTEM
+   - Sound Manager: Centralized audio management
+   - Sound Effects: Shoot, move, round completion sounds
+   - Sound Toggle: Can be enabled/disabled
+   - Background Music Support: Framework in place (currently disabled)
+
+9. INPUT HANDLING
+   - Movement: Arrow keys or A/D keys
+   - Shooting: Spacebar
+   - Weapon Selection: Number keys (1-4) or P to cycle
+   - UI Toggle: I key to show/hide weapon key
+   - Quiz Input: Real-time text input with backspace support
+   - Game Control: Enter to start, R to restart, ESC to return home
+
+10. COLLISION DETECTION
+    - Projectile-Virus Collision: Precise hit detection
+    - Boundary Checking: Player movement within screen bounds
+    - Virus Bottom Detection: Life loss when virus reaches bottom
+    - Effective Hit Detection: Weapon type matching verification
+
+11. STATE MANAGEMENT
+    - Home Screen State: Initial menu
+    - Game Running State: Active gameplay
+    - Quiz State: Paused gameplay with quiz display
+    - Game Over State: End game screen
+    - State Transitions: Smooth transitions between states
+
+12. DATA PERSISTENCE
+    - JSON Question Loading: Questions loaded from resources
+    - Fallback System: Default questions if file not found
+    - Resource Management: Classpath and filesystem loading support
+
+================================================================================
+ARCHITECTURAL HIGHLIGHTS
+================================================================================
+
+- MODULAR DESIGN: Each game component is a separate class with clear
+  responsibilities
+- EVENT-DRIVEN: Uses Java Swing's event system for input and timers
+- GAME LOOP: 60 FPS update cycle using Timer (16ms intervals)
+- RENDERING PIPELINE: Layered rendering (background, game objects, UI, overlays)
+- COLLISION SYSTEM: Efficient iterator-based collision detection
+- RESOURCE MANAGEMENT: Robust loading with multiple fallback paths
+- ERROR HANDLING: Try-catch blocks prevent crashes from breaking gameplay
+
+================================================================================
+FILE STRUCTURE
+================================================================================
+
+Main Source Files:
+- Main.java: Application entry point
+- GamePanel.java: Core game logic, rendering, and input handling
+- Player.java: Player entity and movement
+- Virus.java: Virus entity, types, and behavior
+- Weapons.java: Weapon system and projectiles
+- QuizManager.java: Quiz question management
+- RoundManager.java: Round progression and difficulty
+- OverlayEffect.java: Visual effects system
+- SoundManager.java: Audio management
+
+Resources:
+- questions.json: Quiz questions database (20 questions)
+
+Configuration:
+- build.gradle: Build configuration and dependencies
+- settings.gradle: Project settings
+- gradle.properties: Gradle properties
+
+Testing:
+- Comprehensive test suite in src/test/java
+- Integration tests for game components
+- JSON loading tests
+- Quiz system tests
+
+================================================================================
+BUILD AND RUN INSTRUCTIONS
+================================================================================
+
+To build the project:
+  ./gradlew build
+
+To run the game:
+  ./gradlew run
+
+To run tests:
+  ./gradlew test
+
+To create executable JAR:
+  ./gradlew jar
+
+================================================================================
+NOTABLE FEATURES
+================================================================================
+
+1. Educational Integration: Seamlessly combines gaming with learning
+2. Progressive Difficulty: Balanced challenge curve
+3. Visual Polish: Professional UI with smooth animations
+4. Robust Error Handling: Game continues even with errors
+5. Cross-Platform: Runs on any system with Java 11+
+6. Extensible Design: Easy to add new questions, weapons, or virus types
+7. Comprehensive Testing: Full test coverage for critical components
+8. User-Friendly: Clear instructions and intuitive controls
+
+================================================================================
+END OF SUMMARY
+================================================================================
+
