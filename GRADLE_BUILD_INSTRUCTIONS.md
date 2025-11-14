@@ -1,4 +1,4 @@
-# How to Build the Virus Defense Project
+# How to Build the HeartAttack Project
 
 ## Option 1: Using Gradle Wrapper (Recommended)
 
@@ -39,11 +39,11 @@ gradle build
 ./gradlew test
 ```
 
-### Run the Virus Defense game:
+### Run the HeartAttack game:
 ```bash
 ./gradlew run
 # or
-./gradlew runVirusDefense
+./gradlew runHeartAttack
 ```
 
 ### Create a JAR file:

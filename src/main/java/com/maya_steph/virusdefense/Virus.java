@@ -7,7 +7,7 @@ import java.awt.*;
  */
 public class Virus {
     public enum VirusType {
-        SPIKY_VIRUS("Spiky", Color.RED, Weapons.WeaponType.SPIKY_BALL),
+        SPIKY_VIRUS("Spiky", new Color(139, 69, 19), Weapons.WeaponType.SPIKY_BALL), // Brown color (SaddleBrown)
         ROUND_VIRUS("Round", Color.GREEN, Weapons.WeaponType.BALL),
         STAR_VIRUS("Star", Color.BLUE, Weapons.WeaponType.STAR),
         ARROW_VIRUS("Arrow", Color.ORANGE, Weapons.WeaponType.ARROW);

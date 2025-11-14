@@ -1,10 +1,10 @@
-# 🦠 Virus Defense Game
+# ❤️ HeartAttack Game
 
-A strategic tower defense game where you defend your organs from waves of invading viruses while managing quiz interruptions that test your knowledge under pressure.
+A fun, interactive educational game that helps players of all ages learn about the heart while defending it from waves of invading viruses. Answer heart biology quiz questions correctly to survive!
 
 ## 🎮 Game Overview
 
-**Virus Defense** is a Java-based tower defense game that combines strategic gameplay with educational elements. Players must use different weapons to eliminate specific virus types while answering quiz questions that appear at random intervals. Wrong answers cost precious lives, adding an extra layer of challenge to the gameplay.
+**HeartAttack** is a Java-based tower defense game that combines strategic gameplay with educational elements. Players must use different weapons to eliminate specific virus types while answering heart biology quiz questions that appear at random intervals. Wrong answers cost precious lives, adding an extra layer of challenge to the gameplay.
 
 ---
 
@@ -168,7 +168,7 @@ Each virus type has a specific weakness and can **only** be destroyed by its mat
 ### Running the Game
 ```bash
 # Navigate to game directory
-cd /path/to/Virus-Defense
+cd /path/to/HeartAttack
 
 # Run with Gradle
 ./gradlew run

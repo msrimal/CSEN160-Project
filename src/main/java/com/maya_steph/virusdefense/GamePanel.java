@@ -34,7 +34,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private int lives = 3;
     
     // UI visibility
-    private boolean weaponKeyVisible = false;
+    private boolean weaponKeyVisible = true; // Show weapon key by default
     
     // Quiz system
     private QuizManager quizManager;
@@ -48,7 +48,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     
     public GamePanel() {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        setBackground(Color.BLACK);
+        setBackground(Color.RED); // Red background for game
         setFocusable(true);
         addKeyListener(this);
         
@@ -84,6 +84,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         viruses.clear();
         roundManager.startRound();
         overlay.reset();
+        overlay.startMovingBackground(); // Start moving background effect for forward movement illusion
         showingQuiz = false;
         waitingForAnswer = false;
         showingResult = false;
@@ -94,6 +95,42 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         scheduleNextQuiz(true); // First question with longer delay
         // Background music disabled
         requestFocus();
+    }
+    
+    private void returnToHomeScreen() {
+        showingHomeScreen = true;
+        gameRunning = false;
+        gameOver = false;
+        lives = 3;
+        viruses.clear();
+        showingQuiz = false;
+        waitingForAnswer = false;
+        showingResult = false;
+        answerWasCorrect = false;
+        userInput = "";
+        currentQuestion = null;
+        
+        // Stop all timers
+        gameTimer.stop();
+        virusSpawnTimer.stop();
+        if (quizTimer != null) {
+            quizTimer.stop();
+        }
+        if (resultDisplayTimer != null) {
+            resultDisplayTimer.stop();
+        }
+        
+        // Reset game state
+        roundManager = new RoundManager();
+        overlay.reset();
+        overlay.stopMovingBackground(); // Stop moving background effect
+        weapons = new Weapons();
+        player = new Player(WIDTH / 2, HEIGHT - 100);
+        
+        // Restart game timer for home screen blinking effect
+        gameTimer.start();
+        requestFocus();
+        repaint();
     }
     
     private void spawnVirus() {
@@ -204,9 +241,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         showingResult = true;
         
         if (!correct) {
-            // Wrong answer - lose a life
+            // Wrong answer - lose a life (from quiz, so no shake/red overlay)
             System.out.println("Wrong answer - losing a life");
-            loseLife();
+            loseLife(true); // Pass true to indicate it's from quiz
         } else {
             System.out.println("Correct answer - continuing");
         }
@@ -301,9 +338,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             // Advance to next round
             roundManager.advanceToNextRound();
             
-            // Trigger flash effect and play sound
+            // Trigger flash effect
             overlay.triggerNewRoundFlash();
-            playSound("round_complete");
             System.out.println("ROUND COMPLETE! NEW ROUND FLASH TRIGGERED!");
             
             // Restart virus spawning for the new round
@@ -312,8 +348,16 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     }
     
     private void loseLife() {
+        loseLife(false); // Default: not from quiz
+    }
+    
+    private void loseLife(boolean fromQuiz) {
         lives--;
-        overlay.triggerLifeLossFlash(); // Red flash when virus passes through
+        
+        // Only trigger shake and red overlay if NOT from quiz wrong answer
+        if (!fromQuiz) {
+            overlay.triggerLifeLossShakeAndRedOverlay(); // Shake and red overlay for 1 second
+        }
         
         if (lives <= 0) {
             gameOver = true;
@@ -329,10 +373,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             waitingForAnswer = false;
             showingResult = false;
             soundManager.stopBackgroundMusic(); // Stop music on game over
-            // No sounds at all when losing life or dying
-        } else {
-            // Only play life_lost sound if game continues (not when dying)
-            playSound("life_lost");
+            playSound("game_over"); // Play game over sound
         }
     }
     
@@ -351,18 +392,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
                     projectileIterator.remove();
                     
                     if (effectiveHit) {
-                        // Play hit sound when projectile hits (feedback sound)
-                        playSound("effective_hit");
                         System.out.println("Effective hit! " + projectile.getWeaponType().getDisplayName() + " vs " + virus.getVirusType().getDisplayName());
                         
                         // Check if virus is dead
                         if (virus.isDead()) {
                             virusIterator.remove();
-                            playSound("virus_destroyed");
                         }
                     } else {
-                        // Play ineffective hit sound (feedback sound)
-                        playSound("ineffective_hit");
                         System.out.println("Ineffective hit! " + projectile.getWeaponType().getDisplayName() + " vs " + virus.getVirusType().getDisplayName() + " (need " + virus.getWeakness().getDisplayName() + ")");
                     }
                     break; // Projectile can only hit one virus
@@ -390,12 +426,19 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             return;
         }
         
-        // Draw lane dividers
-        g2d.setColor(Color.GRAY);
-        for (int i = 1; i < LANE_COUNT; i++) {
-            int x = i * LANE_WIDTH;
-            g2d.drawLine(x, 0, x, HEIGHT);
+        // Apply shake effect to entire screen if active
+        if (overlay.isShaking()) {
+            g2d.translate(overlay.getShakeOffsetX(), overlay.getShakeOffsetY());
         }
+        
+        // Draw red background
+        g2d.setColor(Color.RED);
+        g2d.fillRect(0, 0, WIDTH, HEIGHT);
+        
+        // Draw overlay (includes moving background effect) - drawn before game elements
+        overlay.draw(g2d, WIDTH, HEIGHT);
+        
+        // Lane dividers removed - no lines separating lanes
         
         // Draw player
         player.draw(g2d);
@@ -408,8 +451,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         // Draw weapons/projectiles
         weapons.draw(g2d);
         
-        // Draw overlay
-        overlay.draw(g2d, WIDTH, HEIGHT);
+        // Reset shake transform
+        if (overlay.isShaking()) {
+            g2d.translate(-overlay.getShakeOffsetX(), -overlay.getShakeOffsetY());
+        }
         
         // Draw UI
         drawUI(g2d);
@@ -426,32 +471,78 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     }
     
     private void drawUI(Graphics2D g2d) {
-        g2d.setColor(Color.WHITE);
-        g2d.setFont(new Font("Arial", Font.BOLD, 20));
-        
-        // Draw lives as hearts
-        drawHearts(g2d);
-        
-        // Draw round info
-        g2d.drawString("Round: " + roundManager.getCurrentRound(), 10, 60);
-        g2d.drawString("Viruses: " + roundManager.getVirusesRemaining() + "/" + roundManager.getVirusesPerRound(), 10, 90);
-        g2d.drawString("Speed: " + String.format("%.1f", roundManager.getVirusSpeed()), 10, 120);
-        
-        // Draw current weapon
-        g2d.setColor(Color.CYAN);
-        g2d.drawString("Weapon: " + weapons.getCurrentWeapon().getDisplayName(), 10, 150);
-        
-        // Draw basic controls at bottom left
-        g2d.setFont(new Font("Arial", Font.PLAIN, 14));
-        g2d.setColor(Color.LIGHT_GRAY);
-        g2d.drawString("Controls:", 10, 180);
-        g2d.drawString("Space = shoot", 10, 200);
-        g2d.drawString("Arrows = move left/right", 10, 220);
+        // Draw combined player info box (Game Stats, Lives, Weapon, Controls) on the right
+        drawPlayerInfoBox(g2d);
         
         // Draw weapon selection map in top right (if visible)
         if (weaponKeyVisible) {
             drawWeaponMap(g2d);
         }
+    }
+    
+    private void drawPlayerInfoBox(Graphics2D g2d) {
+        // Position in top left
+        int boxX = 10;
+        int boxY = 20;
+        int boxWidth = 200;
+        int boxHeight = 240; // Increased height to fit all information
+        
+        // Background box
+        g2d.setColor(new Color(0, 0, 0, 150));
+        g2d.fillRoundRect(boxX - 10, boxY - 5, boxWidth, boxHeight, 10, 10);
+        g2d.setColor(Color.WHITE);
+        g2d.setStroke(new BasicStroke(1));
+        g2d.drawRoundRect(boxX - 10, boxY - 5, boxWidth, boxHeight, 10, 10);
+        
+        // Draw Game Stats section at the top
+        g2d.setFont(new Font("Arial", Font.BOLD, 14));
+        g2d.setColor(Color.YELLOW);
+        g2d.drawString("GAME STATS", boxX, boxY + 15);
+        
+        g2d.setFont(new Font("Arial", Font.PLAIN, 12));
+        g2d.setColor(Color.WHITE);
+        g2d.drawString("Round: " + roundManager.getCurrentRound(), boxX, boxY + 35);
+        g2d.drawString("Viruses: " + roundManager.getVirusesRemaining() + "/" + roundManager.getVirusesPerRound(), boxX, boxY + 55);
+        g2d.drawString("Speed: " + String.format("%.1f", roundManager.getVirusSpeed()), boxX, boxY + 75);
+        
+        // Draw Lives section
+        int livesY = boxY + 95;
+        g2d.setFont(new Font("Arial", Font.BOLD, 14));
+        g2d.setColor(Color.YELLOW);
+        g2d.drawString("LIVES", boxX, livesY);
+        
+        // Draw hearts for lives
+        int heartSize = 15;
+        int heartSpacing = 20;
+        int heartStartX = boxX;
+        int heartStartY = livesY + 20;
+        g2d.setColor(Color.RED);
+        for (int i = 0; i < lives; i++) {
+            drawHeart(g2d, heartStartX + i * heartSpacing, heartStartY, heartSize, true);
+        }
+        g2d.setColor(Color.DARK_GRAY);
+        for (int i = lives; i < 3; i++) {
+            drawHeart(g2d, heartStartX + i * heartSpacing, heartStartY, heartSize, false);
+        }
+        
+        // Draw current weapon info
+        int weaponInfoY = boxY + 145;
+        g2d.setFont(new Font("Arial", Font.BOLD, 14));
+        g2d.setColor(Color.YELLOW);
+        g2d.drawString("CURRENT WEAPON", boxX, weaponInfoY);
+        g2d.setFont(new Font("Arial", Font.PLAIN, 12));
+        g2d.setColor(Color.WHITE);
+        g2d.drawString(weapons.getCurrentWeapon().getDisplayName(), boxX, weaponInfoY + 18);
+        
+        // Draw Controls section
+        int controlsY = boxY + 185;
+        g2d.setFont(new Font("Arial", Font.BOLD, 14));
+        g2d.setColor(Color.YELLOW);
+        g2d.drawString("CONTROLS", boxX, controlsY);
+        g2d.setFont(new Font("Arial", Font.PLAIN, 11));
+        g2d.setColor(Color.WHITE);
+        g2d.drawString("Space = shoot", boxX, controlsY + 18);
+        g2d.drawString("Arrows = move", boxX, controlsY + 33);
     }
     
     private void drawHearts(Graphics2D g2d) {
@@ -461,7 +552,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         int startY = 30;
         
         // Draw "Lives: " text
-        g2d.setColor(Color.WHITE);
+        g2d.setColor(Color.BLACK); // Changed to black for visibility on red background
         g2d.setFont(new Font("Arial", Font.BOLD, 20));
         g2d.drawString("Lives: ", 10, startY + 7); // Adjust Y to align with hearts
         
@@ -537,19 +628,20 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     }
     
     private void drawWeaponMap(Graphics2D g2d) {
-        // Position in top right corner
-        int mapX = WIDTH - 200;
-        int mapY = 20;
+        // Position in top right (opposite of game stats on left)
+        int mapX = WIDTH - 200 - 10; // Right side, same offset as game stats (10 from left = 10 from right)
+        int mapY = 20; // Top of page, same Y as game stats box
         int lineHeight = 25;
         
-        // Background box (made taller for virus patterns, wider for title, and extra height for hide instruction)
+        // Background box (restored to original size)
+        int boxHeight = 170;
         g2d.setColor(new Color(0, 0, 0, 150));
-        g2d.fillRoundRect(mapX - 10, mapY - 5, 200, 170, 10, 10);
+        g2d.fillRoundRect(mapX - 10, mapY - 5, 200, boxHeight, 10, 10);
         g2d.setColor(Color.WHITE);
         g2d.setStroke(new BasicStroke(1));
-        g2d.drawRoundRect(mapX - 10, mapY - 5, 200, 170, 10, 10);
+        g2d.drawRoundRect(mapX - 10, mapY - 5, 200, boxHeight, 10, 10);
         
-        // Title (moved down to fit better inside the box)
+        // Title
         g2d.setFont(new Font("Arial", Font.BOLD, 14));
         g2d.setColor(Color.YELLOW);
         g2d.drawString("WEAPONS KEY", mapX, mapY + 15);
@@ -558,63 +650,65 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         g2d.setFont(new Font("Courier New", Font.BOLD, 12));
         Weapons.WeaponType currentWeapon = weapons.getCurrentWeapon();
         
-        // 1 - Spiky Ball -> Spiky Virus (moved down by 15 pixels to fit after title)
+        // 1 - Spiky Ball -> Spiky Virus
+        int weaponStartY = mapY + 40;
         g2d.setColor(currentWeapon == Weapons.WeaponType.SPIKY_BALL ? Color.CYAN : Color.LIGHT_GRAY);
-        g2d.drawString("[1]", mapX, mapY + lineHeight + 15);
-        g2d.setColor(Color.MAGENTA);
-        drawMiniSpikyBall(g2d, mapX + 32, mapY + lineHeight + 15 - 4);
+        g2d.drawString("[1]", mapX, weaponStartY);
+        g2d.setColor(Color.CYAN); // Changed from MAGENTA to CYAN to match projectile color
+        drawMiniSpikyBall(g2d, mapX + 32, weaponStartY - 4);
         g2d.setColor(currentWeapon == Weapons.WeaponType.SPIKY_BALL ? Color.WHITE : Color.LIGHT_GRAY);
-        g2d.drawString("vs", mapX + 44, mapY + lineHeight + 15);
-        g2d.setColor(Color.RED);
-        drawMiniVirusSpiky(g2d, mapX + 72, mapY + lineHeight + 15 - 4);
+        g2d.drawString("vs", mapX + 44, weaponStartY);
+        g2d.setColor(new Color(139, 69, 19)); // Brown color to match Spiky virus
+        drawMiniVirusSpiky(g2d, mapX + 72, weaponStartY - 4);
         g2d.setColor(currentWeapon == Weapons.WeaponType.SPIKY_BALL ? Color.WHITE : Color.LIGHT_GRAY);
-        g2d.drawString("Spiky", mapX + 92, mapY + lineHeight + 15);
+        g2d.drawString("Spiky", mapX + 92, weaponStartY);
         
         // 2 - Ball -> Round Virus
         g2d.setColor(currentWeapon == Weapons.WeaponType.BALL ? Color.CYAN : Color.LIGHT_GRAY);
-        g2d.drawString("[2]", mapX, mapY + lineHeight * 2 + 15);
+        g2d.drawString("[2]", mapX, weaponStartY + lineHeight);
         g2d.setColor(Color.YELLOW);
-        drawMiniBall(g2d, mapX + 32, mapY + lineHeight * 2 + 15 - 4);
+        drawMiniBall(g2d, mapX + 32, weaponStartY + lineHeight - 4);
         g2d.setColor(currentWeapon == Weapons.WeaponType.BALL ? Color.WHITE : Color.LIGHT_GRAY);
-        g2d.drawString("vs", mapX + 44, mapY + lineHeight * 2 + 15);
+        g2d.drawString("vs", mapX + 44, weaponStartY + lineHeight);
         g2d.setColor(Color.GREEN);
-        drawMiniVirusRound(g2d, mapX + 72, mapY + lineHeight * 2 + 15 - 4);
+        drawMiniVirusRound(g2d, mapX + 72, weaponStartY + lineHeight - 4);
         g2d.setColor(currentWeapon == Weapons.WeaponType.BALL ? Color.WHITE : Color.LIGHT_GRAY);
-        g2d.drawString("Round", mapX + 92, mapY + lineHeight * 2 + 15);
+        g2d.drawString("Round", mapX + 92, weaponStartY + lineHeight);
         
         // 3 - Star -> Star Virus
         g2d.setColor(currentWeapon == Weapons.WeaponType.STAR ? Color.CYAN : Color.LIGHT_GRAY);
-        g2d.drawString("[3]", mapX, mapY + lineHeight * 3 + 15);
+        g2d.drawString("[3]", mapX, weaponStartY + lineHeight * 2);
         g2d.setColor(Color.CYAN);
-        drawMiniStar(g2d, mapX + 32, mapY + lineHeight * 3 + 15 - 4);
+        drawMiniStar(g2d, mapX + 32, weaponStartY + lineHeight * 2 - 4);
         g2d.setColor(currentWeapon == Weapons.WeaponType.STAR ? Color.WHITE : Color.LIGHT_GRAY);
-        g2d.drawString("vs", mapX + 44, mapY + lineHeight * 3 + 15);
+        g2d.drawString("vs", mapX + 44, weaponStartY + lineHeight * 2);
         g2d.setColor(Color.BLUE);
-        drawMiniVirusStar(g2d, mapX + 72, mapY + lineHeight * 3 + 15 - 4);
+        drawMiniVirusStar(g2d, mapX + 72, weaponStartY + lineHeight * 2 - 4);
         g2d.setColor(currentWeapon == Weapons.WeaponType.STAR ? Color.WHITE : Color.LIGHT_GRAY);
-        g2d.drawString("Star", mapX + 92, mapY + lineHeight * 3 + 15);
+        g2d.drawString("Star", mapX + 92, weaponStartY + lineHeight * 2);
         
         // 4 - Arrow -> Arrow Virus
         g2d.setColor(currentWeapon == Weapons.WeaponType.ARROW ? Color.CYAN : Color.LIGHT_GRAY);
-        g2d.drawString("[4]", mapX, mapY + lineHeight * 4 + 15);
+        g2d.drawString("[4]", mapX, weaponStartY + lineHeight * 3);
         g2d.setColor(Color.WHITE);
-        drawMiniArrow(g2d, mapX + 32, mapY + lineHeight * 4 + 15 - 4);
+        drawMiniArrow(g2d, mapX + 32, weaponStartY + lineHeight * 3 - 4);
         g2d.setColor(currentWeapon == Weapons.WeaponType.ARROW ? Color.WHITE : Color.LIGHT_GRAY);
-        g2d.drawString("vs", mapX + 44, mapY + lineHeight * 4 + 15);
+        g2d.drawString("vs", mapX + 44, weaponStartY + lineHeight * 3);
         g2d.setColor(Color.ORANGE);
-        drawMiniVirusArrow(g2d, mapX + 72, mapY + lineHeight * 4 + 15 - 4);
+        drawMiniVirusArrow(g2d, mapX + 72, weaponStartY + lineHeight * 3 - 4);
         g2d.setColor(currentWeapon == Weapons.WeaponType.ARROW ? Color.WHITE : Color.LIGHT_GRAY);
-        g2d.drawString("Arrow", mapX + 92, mapY + lineHeight * 4 + 15);
+        g2d.drawString("Arrow", mapX + 92, weaponStartY + lineHeight * 3);
         
-        // Legend (moved down to fit after weapon entries)
+        // Legend
         g2d.setFont(new Font("Arial", Font.PLAIN, 11));
         g2d.setColor(Color.LIGHT_GRAY);
-        g2d.drawString("Only effective against matching virus!", mapX, mapY + lineHeight * 5 + 13);
+        g2d.drawString("Only effective against", mapX, weaponStartY + lineHeight * 4 + 5);
+        g2d.drawString("matching virus!", mapX, weaponStartY + lineHeight * 4 + 18);
         
         // Hide instruction
         g2d.setFont(new Font("Arial", Font.PLAIN, 10));
         g2d.setColor(Color.GRAY);
-        g2d.drawString("Press ' i ' to hide this key", mapX, mapY + lineHeight * 5 + 30);
+        g2d.drawString("Press ' i ' to hide", mapX, weaponStartY + lineHeight * 4 + 35);
     }
     
     private void drawMiniBall(Graphics2D g2d, int x, int y) {
@@ -685,7 +779,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     }
     
     private void drawHomeScreen(Graphics2D g2d) {
-        // Background
+        // Background - black
         g2d.setColor(Color.BLACK);
         g2d.fillRect(0, 0, WIDTH, HEIGHT);
         
@@ -693,7 +787,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         g2d.setColor(Color.RED);
         g2d.setFont(new Font("Arial", Font.BOLD, 48));
         FontMetrics fm = g2d.getFontMetrics();
-        String title = "VIRUS DEFENSE";
+        String title = "HEARTATTACK";
         int x = (WIDTH - fm.stringWidth(title)) / 2;
         int y = 80;
         g2d.drawString(title, x, y);
@@ -812,6 +906,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         x = (WIDTH - fm.stringWidth(restartText)) / 2;
         y = HEIGHT / 2 + 60;
         g2d.drawString(restartText, x, y);
+        
+        // Exit to main menu instruction
+        String exitText = "Press ESC to return to main menu";
+        fm = g2d.getFontMetrics();
+        x = (WIDTH - fm.stringWidth(exitText)) / 2;
+        y = HEIGHT / 2 + 100;
+        g2d.drawString(exitText, x, y);
     }
     
     private void drawQuiz(Graphics2D g2d) {
@@ -948,6 +1049,14 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         try {
             int key = e.getKeyCode();
             
+            // Handle ESC key - return to home screen from anywhere
+            if (key == KeyEvent.VK_ESCAPE) {
+                if (gameOver || gameRunning) {
+                    returnToHomeScreen();
+                }
+                return;
+            }
+            
             // Handle home screen - Enter key starts the game
             if (showingHomeScreen) {
                 if (key == KeyEvent.VK_ENTER) {
@@ -991,32 +1100,26 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
                 playSound("move");
                 break;
             case KeyEvent.VK_SPACE:
-                weapons.shoot(player.getX(), player.getY());
+                // Play sound first, then shoot - ensures sound executes immediately
                 playSound("shoot");
+                // Shoot immediately with current weapon - state is already set
+                weapons.shoot(player.getX(), player.getY());
                 break;
             case KeyEvent.VK_P:
+                // Switch weapon atomically - no delays
                 weapons.switchWeapon();
-                playSound("weapon_switch");
                 break;
             case KeyEvent.VK_1:
                 weapons.setWeapon(Weapons.WeaponType.SPIKY_BALL);
-                playSound("weapon_switch"); // Placeholder
-                System.out.println("Switched to Spiky Ball");
                 break;
             case KeyEvent.VK_2:
                 weapons.setWeapon(Weapons.WeaponType.BALL);
-                playSound("weapon_switch"); // Placeholder
-                System.out.println("Switched to Ball");
                 break;
             case KeyEvent.VK_3:
                 weapons.setWeapon(Weapons.WeaponType.STAR);
-                playSound("weapon_switch"); // Placeholder
-                System.out.println("Switched to Star");
                 break;
             case KeyEvent.VK_4:
                 weapons.setWeapon(Weapons.WeaponType.ARROW);
-                playSound("weapon_switch"); // Placeholder
-                System.out.println("Switched to Arrow");
                 break;
             case KeyEvent.VK_I:
                 weaponKeyVisible = !weaponKeyVisible;

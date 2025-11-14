@@ -39,14 +39,16 @@ public class Weapons {
     public void shoot(int playerX, int playerY) {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastShotTime >= SHOT_COOLDOWN) {
+            // Use current weapon at time of shooting (thread-safe for single-threaded game)
             projectiles.add(new ProjectileBall(playerX, playerY - 30, currentWeapon));
             lastShotTime = currentTime;
         }
     }
 
     public void switchWeapon() {
-        WeaponType[] weapons = WeaponType.values(); //returns an array of enums constants in order of the way they were declared
-        int currentIndex = currentWeapon.ordinal(); //get current position
+        // Fast weapon switching - no synchronization needed (single-threaded game loop)
+        WeaponType[] weapons = WeaponType.values();
+        int currentIndex = currentWeapon.ordinal();
         currentWeapon = weapons[(currentIndex + 1) % weapons.length];
     }
 
@@ -111,7 +113,7 @@ public class Weapons {
                     break;
                 case SPIKY_BALL:
                     this.size = 14;
-                    this.color = Color.MAGENTA;
+                    this.color = Color.CYAN; // Changed from MAGENTA to CYAN for visibility on red background
                     break;
                 case ARROW:
                     this.size = 18;

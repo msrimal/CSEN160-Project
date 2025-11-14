@@ -30,6 +30,7 @@ public class SoundManager {
     private long lastMoveSoundTime = 0;
     private static final long MOVE_SOUND_THROTTLE_MS = 100; // Throttle move sounds
     private static final int CLIP_POOL_SIZE = 5; // Number of pre-opened clips per sound
+    private static final int WEAPON_SWITCH_POOL_SIZE = 10; // Larger pool for weapon_switch to prevent delays
     
     public SoundManager() {
         soundCache = new HashMap<>();
@@ -50,6 +51,7 @@ public class SoundManager {
         soundCache.put("ineffective_hit", generateTone(250, 120, 0.25)); // Low thud for ineffective
         soundCache.put("life_lost", generateTone(180, 180, 0.5)); // Warning sound
         soundCache.put("round_complete", generateToneSequence(new int[]{400, 600, 800, 1000}, new int[]{80, 80, 80, 150}, 0.5)); // Success fanfare
+        soundCache.put("game_over", generateToneSequence(new int[]{200, 150, 100}, new int[]{200, 200, 300}, 0.6)); // Game over sound - descending tones
     }
     
     /**
@@ -64,7 +66,9 @@ public class SoundManager {
             if (audioData != null) {
                 java.util.Queue<Clip> clipPool = new java.util.concurrent.ConcurrentLinkedQueue<>();
                 int successfulClips = 0;
-                for (int i = 0; i < CLIP_POOL_SIZE; i++) {
+                // Use larger pool size for weapon_switch to prevent delays
+                int poolSize = "weapon_switch".equals(soundName) ? WEAPON_SWITCH_POOL_SIZE : CLIP_POOL_SIZE;
+                for (int i = 0; i < poolSize; i++) {
                     try {
                         // Create a fresh copy of audio data for each clip
                         ByteArrayInputStream bais = new ByteArrayInputStream(audioData);
@@ -143,10 +147,10 @@ public class SoundManager {
             lastMoveSoundTime = currentTime;
         }
         
-        // For critical sounds (shoot), always allow playback - no limit
-        boolean isCritical = "shoot".equals(soundName);
+        // For critical sounds (shoot, weapon_switch), always allow playback - no limit
+        boolean isCritical = "shoot".equals(soundName) || "weapon_switch".equals(soundName);
         if (!isCritical && activeSoundCount.get() >= MAX_CONCURRENT_SOUNDS) {
-            return; // Skip if too many sounds playing (except for shoot)
+            return; // Skip if too many sounds playing (except for critical sounds)
         }
         
         // Check if we have a pre-opened clip pool for immediate playback
@@ -154,14 +158,14 @@ public class SoundManager {
         if (clipPool != null) {
             Clip availableClip = clipPool.poll();
             if (availableClip != null) {
-                // Start clip immediately - minimal checks for zero delay
+                // Start clip immediately - no blocking state checks, just try to start
                 try {
-                    // Quick reset and start - no state checks that add delay
+                    // Reset and start immediately without checking state (faster)
                     availableClip.setFramePosition(0);
-                    availableClip.start(); // Non-blocking - starts immediately
+                    availableClip.start(); // Non-blocking call - starts immediately
                     activeSoundCount.incrementAndGet();
                     
-                    // Handle cleanup in background thread (don't block)
+                    // Handle cleanup in background thread (completely non-blocking)
                     final Clip clipToCleanup = availableClip;
                     final java.util.Queue<Clip> poolToReturn = clipPool;
                     soundExecutor.submit(() -> {
@@ -176,74 +180,111 @@ public class SoundManager {
                         } catch (Exception e) {
                             // Silently handle errors
                         } finally {
-                            // Return clip to pool for reuse
+                            // Return clip to pool for reuse - reset immediately
                             try {
-                                if (clipToCleanup.isOpen()) {
-                                    if (clipToCleanup.isRunning()) {
-                                        clipToCleanup.stop();
-                                    }
-                                    clipToCleanup.setFramePosition(0);
-                                }
+                                clipToCleanup.stop();
+                                clipToCleanup.setFramePosition(0); // Reset to beginning for immediate reuse
                                 poolToReturn.offer(clipToCleanup);
                             } catch (Exception e) {
-                                // If clip is broken, don't return it to pool
+                                // If clip is broken, don't return it to pool - create new one if needed
                             }
                             activeSoundCount.decrementAndGet();
                         }
                     });
+                    return; // Successfully started, exit immediately
                 } catch (Exception e) {
-                    // If start fails, return clip to pool
+                    // If start fails, return clip to pool and try fallback
                     try {
                         clipPool.offer(availableClip);
                     } catch (Exception ignored) {}
-                    activeSoundCount.decrementAndGet();
+                    // Continue to fallback below
                 }
-                return;
             }
         }
         
-        // Fallback: create clip on-demand for non-critical sounds
+        // Fallback: create clip on-demand
+        // For weapon_switch, create immediately in background to avoid delay
         byte[] audioData = soundCache.get(soundName);
         if (audioData == null) {
             return; // Silently fail if sound not found
         }
         
-        // Use thread pool for playback
-        soundExecutor.submit(() -> {
-            Clip clip = null;
-            try {
-                activeSoundCount.incrementAndGet();
-                
-                AudioFormat format = new AudioFormat(SAMPLE_RATE, SAMPLE_SIZE, CHANNELS, SIGNED, BIG_ENDIAN);
-                ByteArrayInputStream bais = new ByteArrayInputStream(audioData);
-                AudioInputStream audioInputStream = new AudioInputStream(bais, format, audioData.length / format.getFrameSize());
-                
-                clip = AudioSystem.getClip();
-                clip.open(audioInputStream);
-                clip.start(); // Start immediately
-                
-                // Wait for clip to finish
-                long duration = clip.getMicrosecondLength() / 1000;
-                if (duration > 0 && duration < 2000) {
-                    Thread.sleep(duration);
-                } else {
-                    Thread.sleep(500);
+        // For critical sounds like weapon_switch, prioritize immediate creation
+        if (isCritical) {
+            // Use high-priority immediate execution for critical sounds
+            soundExecutor.submit(() -> {
+                Clip clip = null;
+                try {
+                    activeSoundCount.incrementAndGet();
+                    
+                    AudioFormat format = new AudioFormat(SAMPLE_RATE, SAMPLE_SIZE, CHANNELS, SIGNED, BIG_ENDIAN);
+                    ByteArrayInputStream bais = new ByteArrayInputStream(audioData);
+                    AudioInputStream audioInputStream = new AudioInputStream(bais, format, audioData.length / format.getFrameSize());
+                    
+                    clip = AudioSystem.getClip();
+                    clip.open(audioInputStream);
+                    clip.start(); // Start immediately
+                    
+                    // Wait for clip to finish
+                    long duration = clip.getMicrosecondLength() / 1000;
+                    if (duration > 0 && duration < 2000) {
+                        Thread.sleep(duration);
+                    } else {
+                        Thread.sleep(500);
+                    }
+                    
+                } catch (Exception e) {
+                    // Silently handle errors
+                } finally {
+                    if (clip != null) {
+                        try {
+                            if (clip.isOpen()) {
+                                clip.stop();
+                                clip.close();
+                            }
+                        } catch (Exception ignored) {}
+                    }
+                    activeSoundCount.decrementAndGet();
                 }
-                
-            } catch (Exception e) {
-                // Silently handle errors
-            } finally {
-                if (clip != null) {
-                    try {
-                        if (clip.isOpen()) {
-                            clip.stop();
-                            clip.close();
-                        }
-                    } catch (Exception ignored) {}
+            });
+        } else {
+            // Use thread pool for playback of non-critical sounds
+            soundExecutor.submit(() -> {
+                Clip clip = null;
+                try {
+                    activeSoundCount.incrementAndGet();
+                    
+                    AudioFormat format = new AudioFormat(SAMPLE_RATE, SAMPLE_SIZE, CHANNELS, SIGNED, BIG_ENDIAN);
+                    ByteArrayInputStream bais = new ByteArrayInputStream(audioData);
+                    AudioInputStream audioInputStream = new AudioInputStream(bais, format, audioData.length / format.getFrameSize());
+                    
+                    clip = AudioSystem.getClip();
+                    clip.open(audioInputStream);
+                    clip.start(); // Start immediately
+                    
+                    // Wait for clip to finish
+                    long duration = clip.getMicrosecondLength() / 1000;
+                    if (duration > 0 && duration < 2000) {
+                        Thread.sleep(duration);
+                    } else {
+                        Thread.sleep(500);
+                    }
+                    
+                } catch (Exception e) {
+                    // Silently handle errors
+                } finally {
+                    if (clip != null) {
+                        try {
+                            if (clip.isOpen()) {
+                                clip.stop();
+                                clip.close();
+                            }
+                        } catch (Exception ignored) {}
+                    }
+                    activeSoundCount.decrementAndGet();
                 }
-                activeSoundCount.decrementAndGet();
-            }
-        });
+            });
+        }
     }
     
     /**

@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.Component;
 
 /**
- * Main entry point for Virus Defense game
+ * Main entry point for HeartAttack game
  */
 public class Main {
     public static void main(String[] args) {
@@ -16,7 +16,7 @@ public class Main {
         
         SwingUtilities.invokeLater(() -> {
             try {
-                JFrame frame = new JFrame("Virus Defense");
+                JFrame frame = new JFrame("HeartAttack");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setResizable(false);
                 

@@ -58,10 +58,10 @@ sourceSets {
     }
 }
 
-// Task to run Virus Defense game
-task runVirusDefense(type: JavaExec) {
+// Task to run HeartAttack game
+task runHeartAttack(type: JavaExec) {
     group = 'application'
-    description = 'Runs the Virus Defense game'
+    description = 'Runs the HeartAttack game'
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'com.maya_steph.virusdefense.Main'
 }
