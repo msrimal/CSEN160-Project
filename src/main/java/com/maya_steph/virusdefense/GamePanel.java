@@ -633,8 +633,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         int mapY = 20; // Top of page, same Y as game stats box
         int lineHeight = 25;
         
-        // Background box (restored to original size)
-        int boxHeight = 170;
+        // Background box
+        int boxHeight = 190; // Height to fit all content including "Press 'i' to hide" at bottom
         g2d.setColor(new Color(0, 0, 0, 150));
         g2d.fillRoundRect(mapX - 10, mapY - 5, 200, boxHeight, 10, 10);
         g2d.setColor(Color.WHITE);
@@ -705,10 +705,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         g2d.drawString("Only effective against", mapX, weaponStartY + lineHeight * 4 + 5);
         g2d.drawString("matching virus!", mapX, weaponStartY + lineHeight * 4 + 18);
         
-        // Hide instruction
-        g2d.setFont(new Font("Arial", Font.PLAIN, 10));
-        g2d.setColor(Color.GRAY);
-        g2d.drawString("Press ' i ' to hide", mapX, weaponStartY + lineHeight * 4 + 35);
+        // Press 'i' to hide instruction (same font as weapon mappings, bolded, 2 points bigger)
+        g2d.setFont(new Font("Courier New", Font.BOLD, 14)); // 12 + 2 = 14, same font as weapon mappings
+        g2d.setColor(Color.LIGHT_GRAY);
+        g2d.drawString("Press 'i' to hide", mapX, weaponStartY + lineHeight * 4 + 35);
     }
     
     private void drawMiniBall(Graphics2D g2d, int x, int y) {
