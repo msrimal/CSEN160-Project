@@ -1,0 +1,104 @@
+{
+  "questions": [
+    {
+      "id": "Q1",
+      "text": "What is the main function of the heart?",
+      "answer": "pump blood"
+    },
+    {
+      "id": "Q2",
+      "text": "How many chambers does the human heart have?",
+      "answer": "4"
+    },
+    {
+      "id": "Q3",
+      "text": "What are the upper chambers of the heart called?",
+      "answer": "atria"
+    },
+    {
+      "id": "Q4",
+      "text": "What are the lower chambers of the heart called?",
+      "answer": "ventricles"
+    },
+    {
+      "id": "Q5",
+      "text": "Which side of the heart pumps blood to the lungs?",
+      "answer": "right"
+    },
+    {
+      "id": "Q6",
+      "text": "Which side of the heart pumps blood to the body?",
+      "answer": "left"
+    },
+    {
+      "id": "Q7",
+      "text": "What is the largest artery in the body?",
+      "answer": "aorta"
+    },
+    {
+      "id": "Q8",
+      "text": "What valve separates the left atrium from the left ventricle?",
+      "answer": "mitral"
+    },
+    {
+      "id": "Q9",
+      "text": "What valve separates the right atrium from the right ventricle?",
+      "answer": "tricuspid"
+    },
+    {
+      "id": "Q10",
+      "text": "What is the average resting heart rate for adults?",
+      "answer": "60-100"
+    },
+    {
+      "id": "Q11",
+      "text": "What is the medical term for the heart muscle?",
+      "answer": "myocardium"
+    },
+    {
+      "id": "Q12",
+      "text": "What is the pacemaker of the heart?",
+      "answer": "SA node"
+    },
+    {
+      "id": "Q13",
+      "text": "What carries oxygenated blood away from the heart?",
+      "answer": "arteries"
+    },
+    {
+      "id": "Q14",
+      "text": "What carries deoxygenated blood back to the heart?",
+      "answer": "veins"
+    },
+    {
+      "id": "Q15",
+      "text": "What is the double-layered membrane surrounding the heart?",
+      "answer": "pericardium"
+    },
+    {
+      "id": "Q16",
+      "text": "What is the phase when the heart contracts?",
+      "answer": "systole"
+    },
+    {
+      "id": "Q17",
+      "text": "What is the phase when the heart relaxes?",
+      "answer": "diastole"
+    },
+    {
+      "id": "Q18",
+      "text": "What is the largest vein that returns blood to the heart?",
+      "answer": "vena cava"
+    },
+    {
+      "id": "Q19",
+      "text": "What prevents blood from flowing backward in the heart?",
+      "answer": "valves"
+    },
+    {
+      "id": "Q20",
+      "text": "What is the normal blood pressure range for adults?",
+      "answer": "120/80"
+    }
+  ]
+}

@@ -183,6 +183,13 @@ public class GamePanelQuizTest {
             showQuizMethod.setAccessible(true);
             showQuizMethod.invoke(gamePanel);
             
+            // Get the current question to get its correct answer
+            Field currentQuestionField = GamePanel.class.getDeclaredField("currentQuestion");
+            currentQuestionField.setAccessible(true);
+            QuizManager.Question currentQuestion = (QuizManager.Question) currentQuestionField.get(gamePanel);
+            assertNotNull(currentQuestion, "Should have a current question");
+            String correctAnswer = currentQuestion.getAnswer();
+            
             // Get initial lives count
             Field livesField = GamePanel.class.getDeclaredField("lives");
             livesField.setAccessible(true);
@@ -191,7 +198,7 @@ public class GamePanelQuizTest {
             // Set correct answer
             Field userInputField = GamePanel.class.getDeclaredField("userInput");
             userInputField.setAccessible(true);
-            userInputField.set(gamePanel, "abc123");
+            userInputField.set(gamePanel, correctAnswer);
             
             // Submit answer with Enter key
             KeyEvent enterEvent = new KeyEvent(gamePanel, KeyEvent.KEY_PRESSED, System.currentTimeMillis(), 0, KeyEvent.VK_ENTER, KeyEvent.CHAR_UNDEFINED);
@@ -201,11 +208,17 @@ public class GamePanelQuizTest {
             int currentLives = (Integer) livesField.get(gamePanel);
             assertEquals(initialLives, currentLives, "Lives should not decrease for correct answer");
             
-            // Check that quiz is no longer showing
-            Field showingQuizField = GamePanel.class.getDeclaredField("showingQuiz");
-            showingQuizField.setAccessible(true);
-            boolean showingQuiz = (Boolean) showingQuizField.get(gamePanel);
-            assertFalse(showingQuiz, "Should not be showing quiz after correct answer");
+            // Check that result is showing (quiz stays visible for 2 seconds to show result)
+            Field showingResultField = GamePanel.class.getDeclaredField("showingResult");
+            showingResultField.setAccessible(true);
+            boolean showingResult = (Boolean) showingResultField.get(gamePanel);
+            assertTrue(showingResult, "Should be showing result after correct answer");
+            
+            // Check that waiting for answer is false
+            Field waitingForAnswerField = GamePanel.class.getDeclaredField("waitingForAnswer");
+            waitingForAnswerField.setAccessible(true);
+            boolean waitingForAnswer = (Boolean) waitingForAnswerField.get(gamePanel);
+            assertFalse(waitingForAnswer, "Should not be waiting for answer after submission");
             
         } catch (Exception e) {
             fail("Failed to test correct answer: " + e.getMessage());
@@ -239,11 +252,17 @@ public class GamePanelQuizTest {
             int currentLives = (Integer) livesField.get(gamePanel);
             assertEquals(initialLives - 1, currentLives, "Lives should decrease by 1 for incorrect answer");
             
-            // Check that quiz is no longer showing
-            Field showingQuizField = GamePanel.class.getDeclaredField("showingQuiz");
-            showingQuizField.setAccessible(true);
-            boolean showingQuiz = (Boolean) showingQuizField.get(gamePanel);
-            assertFalse(showingQuiz, "Should not be showing quiz after incorrect answer");
+            // Check that result is showing (quiz stays visible for 2 seconds to show result)
+            Field showingResultField = GamePanel.class.getDeclaredField("showingResult");
+            showingResultField.setAccessible(true);
+            boolean showingResult = (Boolean) showingResultField.get(gamePanel);
+            assertTrue(showingResult, "Should be showing result after incorrect answer");
+            
+            // Check that waiting for answer is false
+            Field waitingForAnswerField = GamePanel.class.getDeclaredField("waitingForAnswer");
+            waitingForAnswerField.setAccessible(true);
+            boolean waitingForAnswer = (Boolean) waitingForAnswerField.get(gamePanel);
+            assertFalse(waitingForAnswer, "Should not be waiting for answer after submission");
             
         } catch (Exception e) {
             fail("Failed to test incorrect answer: " + e.getMessage());

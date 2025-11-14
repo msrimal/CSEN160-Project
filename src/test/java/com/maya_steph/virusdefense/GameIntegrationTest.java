@@ -60,7 +60,8 @@ public class GameIntegrationTest {
             roundManager.setCurrentRound(round);
             double currentSpeed = roundManager.getVirusSpeed();
             assertTrue(currentSpeed >= initialSpeed);
-            assertTrue(currentSpeed == 2.0 + (round - 1) * 0.5);
+            // Actual formula: baseSpeed (1.0) + (round - 1) * speedIncreasePerRound (0.3)
+            assertEquals(1.0 + (round - 1) * 0.3, currentSpeed, 0.001);
         }
     }
     

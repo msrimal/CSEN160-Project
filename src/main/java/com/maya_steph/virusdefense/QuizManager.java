@@ -7,6 +7,8 @@ import org.json.simple.parser.ParseException;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -46,18 +48,14 @@ public class QuizManager {
     
     private void loadQuestions() {
         JSONParser parser = new JSONParser();
-        String[] possiblePaths = {
-            "questions.json",
-            "./questions.json",
-            "../questions.json",
-            "../../questions.json"
-        };
-        
         boolean loaded = false;
-        for (String path : possiblePaths) {
-            try {
-                System.out.println("Trying to load questions from: " + path);
-                Object obj = parser.parse(new FileReader(path));
+        
+        // First try to load from resources (classpath) - this works when running from JAR
+        try {
+            InputStream resourceStream = getClass().getClassLoader().getResourceAsStream("questions.json");
+            if (resourceStream != null) {
+                System.out.println("Trying to load questions from resources (classpath)");
+                Object obj = parser.parse(new InputStreamReader(resourceStream));
                 JSONObject jsonObject = (JSONObject) obj;
                 JSONArray questionArray = (JSONArray) jsonObject.get("questions");
                 
@@ -71,12 +69,48 @@ public class QuizManager {
                             questions.add(new Question(id, text, answer));
                         }
                     }
-                    System.out.println("Successfully loaded " + questions.size() + " questions from " + path);
+                    System.out.println("Successfully loaded " + questions.size() + " questions from resources");
+                    resourceStream.close();
                     loaded = true;
-                    break;
                 }
-            } catch (IOException | ParseException e) {
-                System.out.println("Could not load from " + path + ": " + e.getMessage());
+            }
+        } catch (IOException | ParseException e) {
+            System.out.println("Could not load from resources: " + e.getMessage());
+        }
+        
+        // If not loaded from resources, try file system paths (for development)
+        if (!loaded) {
+            String[] possiblePaths = {
+                "questions.json",
+                "./questions.json",
+                "../questions.json",
+                "../../questions.json"
+            };
+            
+            for (String path : possiblePaths) {
+                try {
+                    System.out.println("Trying to load questions from: " + path);
+                    Object obj = parser.parse(new FileReader(path));
+                    JSONObject jsonObject = (JSONObject) obj;
+                    JSONArray questionArray = (JSONArray) jsonObject.get("questions");
+                    
+                    if (questionArray != null) {
+                        for (Object questionObj : questionArray) {
+                            JSONObject question = (JSONObject) questionObj;
+                            String id = (String) question.get("id");
+                            String text = (String) question.get("text");
+                            String answer = (String) question.get("answer");
+                            if (id != null && text != null && answer != null) {
+                                questions.add(new Question(id, text, answer));
+                            }
+                        }
+                        System.out.println("Successfully loaded " + questions.size() + " questions from " + path);
+                        loaded = true;
+                        break;
+                    }
+                } catch (IOException | ParseException e) {
+                    System.out.println("Could not load from " + path + ": " + e.getMessage());
+                }
             }
         }
         

@@ -22,17 +22,19 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private OverlayEffect overlay;
     private final Random random;
     private Weapons weapons;
+    private SoundManager soundManager;
     
     private Timer gameTimer;
     private Timer virusSpawnTimer;
     private Timer quizTimer;
     private boolean gameRunning;
     private boolean gameOver;
+    private boolean showingHomeScreen;
     
     private int lives = 3;
     
     // UI visibility
-    private boolean weaponKeyVisible = true;
+    private boolean weaponKeyVisible = false;
     
     // Quiz system
     private QuizManager quizManager;
@@ -57,20 +59,25 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         random = new Random();
         weapons = new Weapons();
         quizManager = new QuizManager();
+        soundManager = new SoundManager();
         System.out.println("QuizManager initialized with " + quizManager.getQuestionCount() + " questions");
         userInput = "";
         showingQuiz = false;
         waitingForAnswer = false;
         showingResult = false;
         answerWasCorrect = false;
+        showingHomeScreen = true;
+        gameRunning = false;
         
         gameTimer = new Timer(16, this); // ~60 FPS
+        gameTimer.start(); // Start timer for home screen blinking effect
         virusSpawnTimer = new Timer(4000, e -> spawnVirus()); // Start slower (4 seconds) for first round
         
         // Quiz timer will be started when game begins
     }
     
     public void startGame() {
+        showingHomeScreen = false;
         gameRunning = true;
         gameOver = false;
         lives = 3;
@@ -85,6 +92,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         gameTimer.start();
         virusSpawnTimer.start();
         scheduleNextQuiz(true); // First question with longer delay
+        // Background music disabled
         requestFocus();
     }
     
@@ -171,6 +179,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         gameTimer.stop();
         virusSpawnTimer.stop();
         
+        // Disable sounds during quiz (no background music to pause)
+        if (soundManager != null) {
+            soundManager.setSoundEnabled(false);
+        }
+        
         // Force a repaint to show the quiz immediately
         repaint();
     }
@@ -222,6 +235,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             System.out.println("Resuming game and scheduling next quiz");
             gameTimer.start();
             virusSpawnTimer.start();
+            
+            // Re-enable sounds (no background music to resume)
+            if (soundManager != null) {
+                soundManager.setSoundEnabled(true);
+            }
+            
             scheduleNextQuiz(); // Schedule next quiz
         } else {
             System.out.println("Not resuming - gameRunning: " + gameRunning + ", gameOver: " + gameOver);
@@ -230,10 +249,20 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     
     @Override
     public void actionPerformed(ActionEvent e) {
+        if (showingHomeScreen) {
+            repaint(); // Repaint for blinking effect
+            return;
+        }
         if (!gameRunning || gameOver) return;
         
-        updateGame();
-        repaint();
+        try {
+            updateGame();
+            repaint();
+        } catch (Exception ex) {
+            // Catch any exceptions to prevent game from crashing
+            System.err.println("Error in game loop: " + ex.getMessage());
+            ex.printStackTrace();
+        }
     }
     
     private void updateGame() {
@@ -299,6 +328,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             showingQuiz = false;
             waitingForAnswer = false;
             showingResult = false;
+            soundManager.stopBackgroundMusic(); // Stop music on game over
             // No sounds at all when losing life or dying
         } else {
             // Only play life_lost sound if game continues (not when dying)
@@ -321,6 +351,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
                     projectileIterator.remove();
                     
                     if (effectiveHit) {
+                        // Play hit sound when projectile hits (feedback sound)
                         playSound("effective_hit");
                         System.out.println("Effective hit! " + projectile.getWeaponType().getDisplayName() + " vs " + virus.getVirusType().getDisplayName());
                         
@@ -330,6 +361,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
                             playSound("virus_destroyed");
                         }
                     } else {
+                        // Play ineffective hit sound (feedback sound)
                         playSound("ineffective_hit");
                         System.out.println("Ineffective hit! " + projectile.getWeaponType().getDisplayName() + " vs " + virus.getVirusType().getDisplayName() + " (need " + virus.getWeakness().getDisplayName() + ")");
                     }
@@ -340,26 +372,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     }
     
     private void playSound(String soundName) {
-        System.out.println("Playing sound: " + soundName);
-        
-        // Only play actual sound for round completion
-        if ("round_complete".equals(soundName)) {
-            try {
-                // *** CHANGE THIS LINE TO MODIFY THE ROUND COMPLETION SOUND ***
-                // Current: Single system beep - replace with custom sound file or different beep sequence
-                java.awt.Toolkit.getDefaultToolkit().beep();
-                
-                // Examples of alternatives:
-                // Multiple beeps: add more beep() calls with Thread.sleep() between them
-                // Custom sound file: use AudioSystem.getAudioInputStream() and Clip.start()
-                // Different system sound: use Runtime.getRuntime().exec("osascript -e \"beep 2\"")
-                
-            } catch (Exception e) {
-                // If sound fails, just continue silently
-                System.err.println("Could not play round complete sound: " + e.getMessage());
-            }
+        // Play sound immediately - no exception handling overhead
+        if (soundManager != null) {
+            soundManager.playSound(soundName);
         }
-        // All other sounds are silent (just console output for debugging)
     }
     
     @Override
@@ -367,6 +383,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        
+        // Draw home screen first - if showing, don't draw game elements
+        if (showingHomeScreen) {
+            drawHomeScreen(g2d);
+            return;
+        }
         
         // Draw lane dividers
         g2d.setColor(Color.GRAY);
@@ -662,6 +684,104 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         g2d.fillRect(x - 1, y - 3, 2, 3);
     }
     
+    private void drawHomeScreen(Graphics2D g2d) {
+        // Background
+        g2d.setColor(Color.BLACK);
+        g2d.fillRect(0, 0, WIDTH, HEIGHT);
+        
+        // Title
+        g2d.setColor(Color.RED);
+        g2d.setFont(new Font("Arial", Font.BOLD, 48));
+        FontMetrics fm = g2d.getFontMetrics();
+        String title = "VIRUS DEFENSE";
+        int x = (WIDTH - fm.stringWidth(title)) / 2;
+        int y = 80;
+        g2d.drawString(title, x, y);
+        
+        // Subtitle
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(new Font("Arial", Font.BOLD, 24));
+        fm = g2d.getFontMetrics();
+        String subtitle = "Defend the Heart!";
+        x = (WIDTH - fm.stringWidth(subtitle)) / 2;
+        y = 130;
+        g2d.drawString(subtitle, x, y);
+        
+        // Premise
+        g2d.setColor(Color.YELLOW);
+        g2d.setFont(new Font("Arial", Font.BOLD, 20));
+        fm = g2d.getFontMetrics();
+        String premise = "Game Premise:";
+        x = (WIDTH - fm.stringWidth(premise)) / 2;
+        y = 200;
+        g2d.drawString(premise, x, y);
+        
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(new Font("Arial", Font.PLAIN, 16));
+        String premiseText1 = "You are defending the heart organ from";
+        String premiseText2 = "different viruses. Answer heart biology";
+        String premiseText3 = "questions correctly to survive!";
+        fm = g2d.getFontMetrics();
+        x = (WIDTH - fm.stringWidth(premiseText1)) / 2;
+        y = 240;
+        g2d.drawString(premiseText1, x, y);
+        x = (WIDTH - fm.stringWidth(premiseText2)) / 2;
+        y = 265;
+        g2d.drawString(premiseText2, x, y);
+        x = (WIDTH - fm.stringWidth(premiseText3)) / 2;
+        y = 290;
+        g2d.drawString(premiseText3, x, y);
+        
+        // Controls section
+        g2d.setColor(Color.CYAN);
+        g2d.setFont(new Font("Arial", Font.BOLD, 20));
+        fm = g2d.getFontMetrics();
+        String controlsTitle = "Controls:";
+        x = (WIDTH - fm.stringWidth(controlsTitle)) / 2;
+        y = 350;
+        g2d.drawString(controlsTitle, x, y);
+        
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(new Font("Arial", Font.PLAIN, 16));
+        int startY = 385;
+        int lineHeight = 25;
+        String[] controls = {
+            "Arrow Keys or A/D - Move left/right",
+            "Spacebar - Shoot current weapon",
+            "1-4 Keys - Switch weapons directly",
+            "P - Cycle through weapons",
+            "I - Toggle weapon key visibility"
+        };
+        
+        for (int i = 0; i < controls.length; i++) {
+            fm = g2d.getFontMetrics();
+            x = (WIDTH - fm.stringWidth(controls[i])) / 2;
+            y = startY + i * lineHeight;
+            g2d.drawString(controls[i], x, y);
+        }
+        
+        // Weapon info
+        g2d.setColor(Color.MAGENTA);
+        g2d.setFont(new Font("Arial", Font.BOLD, 18));
+        fm = g2d.getFontMetrics();
+        String weaponInfo = "Match weapons to virus types to destroy them!";
+        x = (WIDTH - fm.stringWidth(weaponInfo)) / 2;
+        y = startY + controls.length * lineHeight + 20;
+        g2d.drawString(weaponInfo, x, y);
+        
+        // Start instruction with blinking effect
+        long time = System.currentTimeMillis();
+        if ((time / 500) % 2 == 0) {
+            g2d.setColor(Color.GREEN);
+            g2d.setFont(new Font("Arial", Font.BOLD, 24));
+            fm = g2d.getFontMetrics();
+            String startText = "Press ENTER to Start";
+            x = (WIDTH - fm.stringWidth(startText)) / 2;
+            y = HEIGHT - 80;
+            g2d.drawString(startText, x, y);
+        }
+    }
+    
     private void drawGameOver(Graphics2D g2d) {
         // Pure bright red semi-transparent overlay background (sheer)
         g2d.setColor(new Color(255, 0, 0, 120)); // Pure bright red: R=255, G=0, B=0
@@ -706,18 +826,42 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         g2d.setFont(new Font("Arial", Font.BOLD, 32));
         FontMetrics fm = g2d.getFontMetrics();
         String title = "QUIZ TIME!";
-        int x = (WIDTH - fm.stringWidth(title)) / 2;
-        int y = HEIGHT / 2 - 100;
-        g2d.drawString(title, x, y);
+        int titleX = (WIDTH - fm.stringWidth(title)) / 2;
+        int titleY = HEIGHT / 2 - 100;
+        g2d.drawString(title, titleX, titleY);
         
-        // Question text
+        // Question text - display the actual question, not the ID
         g2d.setColor(Color.WHITE);
-        g2d.setFont(new Font("Arial", Font.PLAIN, 24));
-        String questionText = "Question: " + currentQuestion.getText();
-        fm = g2d.getFontMetrics();
-        x = (WIDTH - fm.stringWidth(questionText)) / 2;
-        y = HEIGHT / 2 - 40;
-        g2d.drawString(questionText, x, y);
+        g2d.setFont(new Font("Arial", Font.PLAIN, 22));
+        String questionText = currentQuestion.getText();
+        
+        // Word wrap for long questions
+        FontMetrics questionFm = g2d.getFontMetrics();
+        int maxWidth = WIDTH - 80; // Leave margins
+        String[] words = questionText.split(" ");
+        StringBuilder line = new StringBuilder();
+        int questionY = HEIGHT / 2 - 60;
+        int lineHeight = 30;
+        
+        for (String word : words) {
+            String testLine = line.length() == 0 ? word : line + " " + word;
+            int width = questionFm.stringWidth(testLine);
+            
+            if (width > maxWidth && line.length() > 0) {
+                // Draw current line and start new one
+                int questionX = (WIDTH - questionFm.stringWidth(line.toString())) / 2;
+                g2d.drawString(line.toString(), questionX, questionY);
+                line = new StringBuilder(word);
+                questionY += lineHeight;
+            } else {
+                line.append(line.length() == 0 ? word : " " + word);
+            }
+        }
+        // Draw last line
+        if (line.length() > 0) {
+            int questionX = (WIDTH - questionFm.stringWidth(line.toString())) / 2;
+            g2d.drawString(line.toString(), questionX, questionY);
+        }
         
         if (showingResult) {
             // Show result instead of input box
@@ -725,26 +869,26 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             if (answerWasCorrect) {
                 g2d.setColor(Color.GREEN);
                 String correctText = "CORRECT!";
-                fm = g2d.getFontMetrics();
-                x = (WIDTH - fm.stringWidth(correctText)) / 2;
-                y = HEIGHT / 2 + 40;
-                g2d.drawString(correctText, x, y);
+                FontMetrics resultFm = g2d.getFontMetrics();
+                int resultX = (WIDTH - resultFm.stringWidth(correctText)) / 2;
+                int resultY = HEIGHT / 2 + 40;
+                g2d.drawString(correctText, resultX, resultY);
             } else {
                 g2d.setColor(Color.RED);
                 String wrongText = "WRONG!";
-                fm = g2d.getFontMetrics();
-                x = (WIDTH - fm.stringWidth(wrongText)) / 2;
-                y = HEIGHT / 2 + 40;
-                g2d.drawString(wrongText, x, y);
+                FontMetrics resultFm = g2d.getFontMetrics();
+                int resultX = (WIDTH - resultFm.stringWidth(wrongText)) / 2;
+                int resultY = HEIGHT / 2 + 40;
+                g2d.drawString(wrongText, resultX, resultY);
                 
                 // Show correct answer
                 g2d.setFont(new Font("Arial", Font.PLAIN, 24));
                 g2d.setColor(Color.YELLOW);
                 String correctAnswerText = "Correct answer: " + currentQuestion.getAnswer();
-                fm = g2d.getFontMetrics();
-                x = (WIDTH - fm.stringWidth(correctAnswerText)) / 2;
-                y = HEIGHT / 2 + 80;
-                g2d.drawString(correctAnswerText, x, y);
+                resultFm = g2d.getFontMetrics();
+                resultX = (WIDTH - resultFm.stringWidth(correctAnswerText)) / 2;
+                resultY = HEIGHT / 2 + 80;
+                g2d.drawString(correctAnswerText, resultX, resultY);
             }
         } else {
             // Show input box for answering
@@ -765,86 +909,94 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             g2d.setFont(new Font("Arial", Font.BOLD, 18));
             g2d.setColor(Color.CYAN);
             String label = "Your Answer:";
-            fm = g2d.getFontMetrics();
-            x = boxX + 10;
-            y = boxY - 10;
-            g2d.drawString(label, x, y);
+            FontMetrics inputFm = g2d.getFontMetrics();
+            int labelX = boxX + 10;
+            int labelY = boxY - 10;
+            g2d.drawString(label, labelX, labelY);
             
             // Input text with cursor
             g2d.setFont(new Font("Courier New", Font.BOLD, 24));
             g2d.setColor(Color.WHITE);
             String displayText = userInput + "|";
-            fm = g2d.getFontMetrics();
-            x = boxX + 15;
-            y = boxY + 32;
-            g2d.drawString(displayText, x, y);
+            inputFm = g2d.getFontMetrics();
+            int inputX = boxX + 15;
+            int inputY = boxY + 32;
+            g2d.drawString(displayText, inputX, inputY);
             
             // Instructions
             g2d.setFont(new Font("Arial", Font.PLAIN, 16));
             g2d.setColor(Color.LIGHT_GRAY);
             String instructions = "Type your answer and press ENTER";
-            fm = g2d.getFontMetrics();
-            x = (WIDTH - fm.stringWidth(instructions)) / 2;
-            y = HEIGHT / 2 + 100;
-            g2d.drawString(instructions, x, y);
+            inputFm = g2d.getFontMetrics();
+            int instX = (WIDTH - inputFm.stringWidth(instructions)) / 2;
+            int instY = HEIGHT / 2 + 100;
+            g2d.drawString(instructions, instX, instY);
             
             // Warning
             g2d.setColor(Color.RED);
             g2d.setFont(new Font("Arial", Font.BOLD, 18));
             String warning = "Wrong answer will cost you a life!";
-            fm = g2d.getFontMetrics();
-            x = (WIDTH - fm.stringWidth(warning)) / 2;
-            y = HEIGHT / 2 + 130;
-            g2d.drawString(warning, x, y);
+            inputFm = g2d.getFontMetrics();
+            int warnX = (WIDTH - inputFm.stringWidth(warning)) / 2;
+            int warnY = HEIGHT / 2 + 130;
+            g2d.drawString(warning, warnX, warnY);
         }
     }
     
     @Override
     public void keyPressed(KeyEvent e) {
-        int key = e.getKeyCode();
-        
-        if (gameOver && key == KeyEvent.VK_R) {
-            startGame();
-            return;
-        }
-        
-        // Handle quiz input
-        if (showingQuiz && waitingForAnswer) {
-            if (key == KeyEvent.VK_ENTER) {
-                submitQuizAnswer();
-                return;
-            } else if (key == KeyEvent.VK_BACK_SPACE) {
-                if (userInput.length() > 0) {
-                    userInput = userInput.substring(0, userInput.length() - 1);
-                    repaint(); // Show the deleted character immediately
-                    System.out.println("Backspace pressed, current input: '" + userInput + "'");
+        try {
+            int key = e.getKeyCode();
+            
+            // Handle home screen - Enter key starts the game
+            if (showingHomeScreen) {
+                if (key == KeyEvent.VK_ENTER) {
+                    startGame();
                 }
                 return;
             }
-            // Let keyTyped handle character input for quiz
-            return;
-        }
-        
-        if (!gameRunning || gameOver) return;
+            
+            if (gameOver && key == KeyEvent.VK_R) {
+                startGame();
+                return;
+            }
+            
+            // Handle quiz input
+            if (showingQuiz && waitingForAnswer) {
+                if (key == KeyEvent.VK_ENTER) {
+                    submitQuizAnswer();
+                    return;
+                } else if (key == KeyEvent.VK_BACK_SPACE) {
+                    if (userInput.length() > 0) {
+                        userInput = userInput.substring(0, userInput.length() - 1);
+                        repaint(); // Show the deleted character immediately
+                    }
+                    return;
+                }
+                // Let keyTyped handle character input for quiz
+                return;
+            }
+            
+            if (!gameRunning || gameOver) return;
         
         switch (key) {
             case KeyEvent.VK_LEFT:
             case KeyEvent.VK_A:
                 player.moveLeft(LANE_WIDTH);
-                playSound("move"); // Placeholder
+                playSound("move");
                 break;
             case KeyEvent.VK_RIGHT:
             case KeyEvent.VK_D:
                 player.moveRight(LANE_WIDTH, WIDTH);
-                playSound("move"); // Placeholder
+                playSound("move");
                 break;
             case KeyEvent.VK_SPACE:
                 weapons.shoot(player.getX(), player.getY());
-                playSound("shoot"); // Placeholder
+                playSound("shoot");
                 break;
             case KeyEvent.VK_P:
                 weapons.switchWeapon();
-                playSound("weapon_switch"); // Placeholder
+                playSound("weapon_switch");
                 break;
             case KeyEvent.VK_1:
                 weapons.setWeapon(Weapons.WeaponType.SPIKY_BALL);
@@ -868,8 +1020,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
                 break;
             case KeyEvent.VK_I:
                 weaponKeyVisible = !weaponKeyVisible;
-                System.out.println("Weapon key " + (weaponKeyVisible ? "shown" : "hidden"));
                 break;
+        }
+        } catch (Exception ex) {
+            // Catch any exceptions to prevent glitches
+            System.err.println("Error handling key press: " + ex.getMessage());
         }
     }
     
@@ -880,14 +1035,18 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     
     @Override
     public void keyTyped(KeyEvent e) {
-        // Handle quiz text input
-        if (showingQuiz && waitingForAnswer) {
-            char c = e.getKeyChar();
-            if (Character.isLetterOrDigit(c) || Character.isWhitespace(c)) {
-                userInput += c;
-                repaint(); // Immediately show the typed character
-                System.out.println("User typed: '" + c + "', current input: '" + userInput + "'");
+        try {
+            // Handle quiz text input
+            if (showingQuiz && waitingForAnswer) {
+                char c = e.getKeyChar();
+                if (Character.isLetterOrDigit(c) || Character.isWhitespace(c)) {
+                    userInput += c;
+                    repaint(); // Immediately show the typed character
+                }
             }
+        } catch (Exception ex) {
+            // Catch any exceptions to prevent glitches
+            System.err.println("Error handling key typed: " + ex.getMessage());
         }
     }
 }

@@ -70,10 +70,10 @@ public class QuizTimerIntegrationTest {
             assertTrue(quizTimer.isRunning(), "Quiz timer should be running after game starts");
             assertFalse(quizTimer.isRepeats(), "Quiz timer should not repeat (single shot)");
             
-            // Check that delay is within expected range (20-30 seconds = 20000-30000 ms)
+            // Check that delay is within expected range (35-60 seconds = 35000-60000 ms)
             int delay = quizTimer.getDelay();
-            assertTrue(delay >= 20000 && delay <= 30000, 
-                "Quiz timer delay should be between 20-30 seconds, was: " + delay + "ms");
+            assertTrue(delay >= 35000 && delay <= 60000, 
+                "Quiz timer delay should be between 35-60 seconds, was: " + delay + "ms");
             
         } catch (Exception e) {
             fail("Failed to test quiz timer scheduling: " + e.getMessage());
@@ -171,6 +171,11 @@ public class QuizTimerIntegrationTest {
                     System.currentTimeMillis(), 0, KeyEvent.VK_ENTER, KeyEvent.CHAR_UNDEFINED);
                 gamePanel.keyPressed(enterEvent);
                 
+                // Manually trigger hideQuizAndResume to clear quiz state for next iteration
+                Method hideQuizAndResumeMethod = GamePanel.class.getDeclaredMethod("hideQuizAndResume");
+                hideQuizAndResumeMethod.setAccessible(true);
+                hideQuizAndResumeMethod.invoke(gamePanel);
+                
                 int currentLives = (Integer) livesField.get(gamePanel);
                 assertEquals(2 - i, currentLives, "Lives should decrease after wrong answer " + (i + 1));
             }
@@ -198,10 +203,18 @@ public class QuizTimerIntegrationTest {
             showQuizMethod.setAccessible(true);
             Field userInputField = GamePanel.class.getDeclaredField("userInput");
             userInputField.setAccessible(true);
+            Field currentQuestionField = GamePanel.class.getDeclaredField("currentQuestion");
+            currentQuestionField.setAccessible(true);
             
             for (int i = 0; i < 5; i++) {
                 showQuizMethod.invoke(gamePanel);
-                userInputField.set(gamePanel, "abc123");
+                
+                // Get the current question's correct answer
+                QuizManager.Question currentQuestion = (QuizManager.Question) currentQuestionField.get(gamePanel);
+                assertNotNull(currentQuestion, "Should have a current question");
+                String correctAnswer = currentQuestion.getAnswer();
+                
+                userInputField.set(gamePanel, correctAnswer);
                 
                 KeyEvent enterEvent = new KeyEvent(gamePanel, KeyEvent.KEY_PRESSED, 
                     System.currentTimeMillis(), 0, KeyEvent.VK_ENTER, KeyEvent.CHAR_UNDEFINED);
@@ -250,7 +263,12 @@ public class QuizTimerIntegrationTest {
                 System.currentTimeMillis(), 0, KeyEvent.VK_ENTER, KeyEvent.CHAR_UNDEFINED);
             gamePanel.keyPressed(enterEvent);
             
-            // Timers should resume
+            // Manually trigger hideQuizAndResume to simulate timer completion
+            Method hideQuizAndResumeMethod = GamePanel.class.getDeclaredMethod("hideQuizAndResume");
+            hideQuizAndResumeMethod.setAccessible(true);
+            hideQuizAndResumeMethod.invoke(gamePanel);
+            
+            // Timers should resume after quiz is hidden
             assertTrue(gameTimer.isRunning(), "Game timer should resume after quiz");
             assertTrue(virusSpawnTimer.isRunning(), "Virus spawn timer should resume after quiz");
             
@@ -309,8 +327,8 @@ public class QuizTimerIntegrationTest {
             
             // Check all delays are in valid range
             for (int delay : delays) {
-                assertTrue(delay >= 20000 && delay <= 30000, 
-                    "All delays should be between 20-30 seconds, found: " + delay);
+                assertTrue(delay >= 35000 && delay <= 60000, 
+                    "All delays should be between 35-60 seconds, found: " + delay);
             }
             
             // Check for some variation (not all the same)
